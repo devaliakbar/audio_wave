@@ -13,9 +13,8 @@ class AudioWaveController {
   PausableTimer _pausableTimer;
 
   AudioWaveController(
-      {@required List<double> abars,
-      Duration animationDuration = const Duration(seconds: 1)})
-      : this.bars = abars.length > 70 ? abars.sublist(0, 70) : abars {
+      {@required this.bars,
+      Duration animationDuration = const Duration(seconds: 1)}) {
     int _beatRateInMillisecond =
         animationDuration.inMilliseconds ~/ bars.length;
 

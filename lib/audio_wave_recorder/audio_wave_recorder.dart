@@ -38,18 +38,12 @@ class AudioWaveRecorder extends StatelessWidget {
     return Container(
       height: _containerHeight,
       width: 54 * _blockSizeHorizontal,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: _AnimatedBar(
-              audioWaveRecordController: audioWaveRecordController,
-              spacing: _spacing,
-              containerHeight: _containerHeight,
-              barWidth: _barWidth,
-              activeColor: activeColor),
-        ),
-      ),
+      child: _AnimatedBar(
+          audioWaveRecordController: audioWaveRecordController,
+          spacing: _spacing,
+          containerHeight: _containerHeight,
+          barWidth: _barWidth,
+          activeColor: activeColor),
     );
   }
 }
@@ -73,6 +67,8 @@ class _AnimatedBar extends StatefulWidget {
 }
 
 class _AnimatedBarState extends State<_AnimatedBar> {
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
@@ -86,19 +82,32 @@ class _AnimatedBarState extends State<_AnimatedBar> {
   Widget build(BuildContext context) {
     return widget.audioWaveRecordController.animatedBars == null
         ? Container()
-        : Row(
-            children: [
-              for (final bar in widget.audioWaveRecordController.animatedBars)
-                Container(
-                  margin: EdgeInsets.only(right: widget.spacing),
-                  height: bar * widget.containerHeight / 100,
-                  width: widget.barWidth,
-                  decoration: BoxDecoration(
-                    color: widget.activeColor,
-                    borderRadius: BorderRadius.circular(widget.barWidth),
-                  ),
-                ),
-            ],
+        : ListView.builder(
+            controller: _scrollController,
+            physics: NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.all(0),
+            shrinkWrap: true,
+            itemCount: widget.audioWaveRecordController.animatedBars.length,
+            scrollDirection: Axis.horizontal,
+            itemBuilder: (BuildContext _, int index) {
+              final double bar =
+                  widget.audioWaveRecordController.animatedBars[index];
+
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    margin: EdgeInsets.only(right: widget.spacing),
+                    height: bar * widget.containerHeight / 100,
+                    width: widget.barWidth,
+                    decoration: BoxDecoration(
+                      color: widget.activeColor,
+                      borderRadius: BorderRadius.circular(widget.barWidth),
+                    ),
+                  )
+                ],
+              );
+            },
           );
   }
 }

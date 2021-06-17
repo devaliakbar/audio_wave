@@ -37,31 +37,40 @@ class AudioWave extends StatelessWidget {
 
     return Container(
       height: _containerHeight,
+      width: 54 * _blockSizeHorizontal,
       child: Stack(
         children: [
-          Row(
-            children: [
-              for (final bar in audioWaveController.bars)
-                Container(
-                  margin: EdgeInsets.only(right: _spacing),
-                  height: bar * _containerHeight / 100,
-                  width: _barWidth,
-                  decoration: BoxDecoration(
-                    color: inActiveColor,
-                    borderRadius: BorderRadius.circular(_barWidth),
-                  ),
-                ),
-            ],
+          ListView.builder(
+            physics: NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.all(0),
+            shrinkWrap: true,
+            itemCount: audioWaveController.bars.length,
+            scrollDirection: Axis.horizontal,
+            itemBuilder: (BuildContext _, int index) {
+              final double bar = audioWaveController.bars[index];
+
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    margin: EdgeInsets.only(right: _spacing),
+                    height: bar * _containerHeight / 100,
+                    width: _barWidth,
+                    decoration: BoxDecoration(
+                      color: inActiveColor,
+                      borderRadius: BorderRadius.circular(_barWidth),
+                    ),
+                  )
+                ],
+              );
+            },
           ),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: _AnimatedBar(
-                audioWaveController: audioWaveController,
-                spacing: _spacing,
-                containerHeight: _containerHeight,
-                barWidth: _barWidth,
-                activeColor: activeColor),
-          )
+          _AnimatedBar(
+              audioWaveController: audioWaveController,
+              spacing: _spacing,
+              containerHeight: _containerHeight,
+              barWidth: _barWidth,
+              activeColor: activeColor)
         ],
       ),
     );
@@ -100,19 +109,30 @@ class _AnimatedBarState extends State<_AnimatedBar> {
   Widget build(BuildContext context) {
     return widget.audioWaveController.animatedBars == null
         ? Container()
-        : Row(
-            children: [
-              for (final bar in widget.audioWaveController.animatedBars)
-                Container(
-                  margin: EdgeInsets.only(right: widget.spacing),
-                  height: bar * widget.containerHeight / 100,
-                  width: widget.barWidth,
-                  decoration: BoxDecoration(
-                    color: widget.activeColor,
-                    borderRadius: BorderRadius.circular(widget.barWidth),
-                  ),
-                ),
-            ],
+        : ListView.builder(
+            physics: NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.all(0),
+            shrinkWrap: true,
+            itemCount: widget.audioWaveController.animatedBars.length,
+            scrollDirection: Axis.horizontal,
+            itemBuilder: (BuildContext _, int index) {
+              final double bar = widget.audioWaveController.animatedBars[index];
+
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    margin: EdgeInsets.only(right: widget.spacing),
+                    height: bar * widget.containerHeight / 100,
+                    width: widget.barWidth,
+                    decoration: BoxDecoration(
+                      color: widget.activeColor,
+                      borderRadius: BorderRadius.circular(widget.barWidth),
+                    ),
+                  )
+                ],
+              );
+            },
           );
   }
 }
