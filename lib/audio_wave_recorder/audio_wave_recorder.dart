@@ -67,8 +67,6 @@ class _AnimatedBar extends StatefulWidget {
 }
 
 class _AnimatedBarState extends State<_AnimatedBar> {
-  final ScrollController _scrollController = ScrollController();
-
   @override
   void initState() {
     super.initState();
@@ -83,8 +81,6 @@ class _AnimatedBarState extends State<_AnimatedBar> {
     return widget.audioWaveRecordController.animatedBars == null
         ? Container()
         : ListView.builder(
-            controller: _scrollController,
-            physics: NeverScrollableScrollPhysics(),
             padding: EdgeInsets.all(0),
             shrinkWrap: true,
             itemCount: widget.audioWaveRecordController.animatedBars.length,

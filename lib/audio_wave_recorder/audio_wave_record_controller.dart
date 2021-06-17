@@ -39,10 +39,12 @@ class AudioWaveRecordController {
   }
 
   double _scaleDown(double x,
-      {double inMin = 10,
+      {double inMin = 0,
       double inMax = 300,
       double outMin = 10,
       double outMax = 100}) {
+    x = x > 300 ? 300 : x;
+
     return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
   }
 }
