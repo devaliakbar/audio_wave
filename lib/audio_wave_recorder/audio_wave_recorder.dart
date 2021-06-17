@@ -1,15 +1,15 @@
-import 'package:audio_wave/audio_wave/audio_wave_controller.dart';
+import 'package:audio_wave/audio_wave_recorder/audio_wave_record_controller.dart';
 import 'package:flutter/material.dart';
 
-class AudioWave extends StatelessWidget {
-  AudioWave({
-    @required this.audioWaveController,
+class AudioWaveRecorder extends StatelessWidget {
+  AudioWaveRecorder({
+    @required this.audioWaveRecordController,
     this.height,
     this.inActiveColor = const Color(0xFF6E6E7A),
     this.activeColor = const Color(0xFF81B3C1),
   });
 
-  final AudioWaveController audioWaveController;
+  final AudioWaveRecordController audioWaveRecordController;
 
   ///[height] is the height of the container
   final double height;
@@ -37,43 +37,29 @@ class AudioWave extends StatelessWidget {
 
     return Container(
       height: _containerHeight,
-      child: Stack(
-        children: [
-          Row(
-            children: [
-              for (final bar in audioWaveController.bars)
-                Container(
-                  margin: EdgeInsets.only(right: _spacing),
-                  height: bar * _containerHeight / 100,
-                  width: _barWidth,
-                  decoration: BoxDecoration(
-                    color: inActiveColor,
-                    borderRadius: BorderRadius.circular(_barWidth),
-                  ),
-                ),
-            ],
-          ),
-          _AnimatedBar(
-              audioWaveController: audioWaveController,
-              spacing: _spacing,
-              containerHeight: _containerHeight,
-              barWidth: _barWidth,
-              activeColor: activeColor)
-        ],
+      width: 54 * _blockSizeHorizontal,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: _AnimatedBar(
+            audioWaveRecordController: audioWaveRecordController,
+            spacing: _spacing,
+            containerHeight: _containerHeight,
+            barWidth: _barWidth,
+            activeColor: activeColor),
       ),
     );
   }
 }
 
 class _AnimatedBar extends StatefulWidget {
-  final AudioWaveController audioWaveController;
+  final AudioWaveRecordController audioWaveRecordController;
   final double spacing;
   final double containerHeight;
   final double barWidth;
   final Color activeColor;
 
   _AnimatedBar(
-      {@required this.audioWaveController,
+      {@required this.audioWaveRecordController,
       @required this.spacing,
       @required this.containerHeight,
       @required this.barWidth,
@@ -88,18 +74,18 @@ class _AnimatedBarState extends State<_AnimatedBar> {
   void initState() {
     super.initState();
 
-    widget.audioWaveController.addCallback(() {
+    widget.audioWaveRecordController.addCallback(() {
       setState(() {});
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return widget.audioWaveController.animatedBars == null
+    return widget.audioWaveRecordController.animatedBars == null
         ? Container()
         : Row(
             children: [
-              for (final bar in widget.audioWaveController.animatedBars)
+              for (final bar in widget.audioWaveRecordController.animatedBars)
                 Container(
                   margin: EdgeInsets.only(right: widget.spacing),
                   height: bar * widget.containerHeight / 100,

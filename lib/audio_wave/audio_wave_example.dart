@@ -2,12 +2,12 @@ import 'package:audio_wave/audio_wave/audio_wave.dart';
 import 'package:audio_wave/audio_wave/audio_wave_controller.dart';
 import 'package:flutter/material.dart';
 
-class MainAudioWave extends StatefulWidget {
+class AudioWaveExample extends StatefulWidget {
   @override
   _MainAudioWaveState createState() => _MainAudioWaveState();
 }
 
-class _MainAudioWaveState extends State<MainAudioWave> {
+class _MainAudioWaveState extends State<AudioWaveExample> {
   AudioWaveController audioWaveController;
 
   @override
@@ -15,6 +15,34 @@ class _MainAudioWaveState extends State<MainAudioWave> {
     super.initState();
 
     audioWaveController = AudioWaveController(abars: [
+      30,
+      50,
+      40,
+      60,
+      70,
+      40,
+      20,
+      10,
+      30,
+      50,
+      40,
+      60,
+      90,
+      100,
+      30,
+      50,
+      40,
+      60,
+      70,
+      40,
+      20,
+      10,
+      30,
+      50,
+      40,
+      60,
+      90,
+      100,
       30,
       50,
       40,
