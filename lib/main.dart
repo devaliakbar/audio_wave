@@ -1,4 +1,4 @@
-import 'package:audio_wave/main_audio_wave/main_audio_wave.dart';
+import 'package:audio_wave/main_audio_wave.dart';
 import 'package:flutter/material.dart';
 
 void main() {
