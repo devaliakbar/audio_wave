@@ -40,12 +40,15 @@ class AudioWaveRecorder extends StatelessWidget {
       width: 54 * _blockSizeHorizontal,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        child: _AnimatedBar(
-            audioWaveRecordController: audioWaveRecordController,
-            spacing: _spacing,
-            containerHeight: _containerHeight,
-            barWidth: _barWidth,
-            activeColor: activeColor),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: _AnimatedBar(
+              audioWaveRecordController: audioWaveRecordController,
+              spacing: _spacing,
+              containerHeight: _containerHeight,
+              barWidth: _barWidth,
+              activeColor: activeColor),
+        ),
       ),
     );
   }

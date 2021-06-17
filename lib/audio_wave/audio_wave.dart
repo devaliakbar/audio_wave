@@ -53,12 +53,15 @@ class AudioWave extends StatelessWidget {
                 ),
             ],
           ),
-          _AnimatedBar(
-              audioWaveController: audioWaveController,
-              spacing: _spacing,
-              containerHeight: _containerHeight,
-              barWidth: _barWidth,
-              activeColor: activeColor)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: _AnimatedBar(
+                audioWaveController: audioWaveController,
+                spacing: _spacing,
+                containerHeight: _containerHeight,
+                barWidth: _barWidth,
+                activeColor: activeColor),
+          )
         ],
       ),
     );
