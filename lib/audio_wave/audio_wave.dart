@@ -32,6 +32,12 @@ class _AudioWaveState extends State<AudioWave> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.audioWaveController.audioWaves == null) {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
     double _containerHeight = widget.height;
     if (_containerHeight == null) {
       final double _blockSizeVertical =
@@ -45,41 +51,37 @@ class _AudioWaveState extends State<AudioWave> {
 
     final double _spacing = 0.3 * _blockSizeHorizontal;
 
+    final int _currentPlayedBarIndex =
+        widget.audioWaveController.currentPlayedBarIndex ?? 0;
+
     return Container(
       height: _containerHeight,
       width: 54 * _blockSizeHorizontal,
-      child: StreamBuilder(
-        stream: widget.audioWaveController.audioWaves?.stream ?? null,
-        builder: (context, snapshot) {
-          if (snapshot.data == null) return Container();
+      child: ListView.builder(
+        shrinkWrap: true,
+        padding: EdgeInsets.all(0),
+        itemCount: widget.audioWaveController.audioWaves.length,
+        scrollDirection: Axis.horizontal,
+        itemBuilder: (BuildContext _, int index) {
+          double bar = widget.audioWaveController.audioWaves[index];
+          bar = bar * 100;
+          bar = bar < 10 ? 10 : bar;
 
-          final List<double> wave = snapshot.data;
-
-          return ListView.builder(
-            shrinkWrap: true,
-            padding: EdgeInsets.all(0),
-            itemCount: wave.length,
-            scrollDirection: Axis.horizontal,
-            itemBuilder: (BuildContext _, int index) {
-              double bar = wave[index];
-              bar = bar * 100;
-              bar = bar < 10 ? 10 : bar;
-
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    margin: EdgeInsets.only(right: _spacing),
-                    height: bar * _containerHeight / 100,
-                    width: _barWidth,
-                    decoration: BoxDecoration(
-                      color: widget.barColor,
-                      borderRadius: BorderRadius.circular(_barWidth),
-                    ),
-                  )
-                ],
-              );
-            },
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                margin: EdgeInsets.only(right: _spacing),
+                height: bar * _containerHeight / 100,
+                width: _barWidth,
+                decoration: BoxDecoration(
+                  color: index <= _currentPlayedBarIndex
+                      ? widget.barColor
+                      : Colors.black,
+                  borderRadius: BorderRadius.circular(_barWidth),
+                ),
+              )
+            ],
           );
         },
       ),
