@@ -1,4 +1,4 @@
-import 'package:audio_wave/audio_wave/pausable_timer.dart';
+import 'package:audio_wave/pausable_timer/pausable_timer.dart';
 import 'package:flutter/material.dart';
 
 class AudioWaveController {
