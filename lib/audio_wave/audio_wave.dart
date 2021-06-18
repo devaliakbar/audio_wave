@@ -1,12 +1,11 @@
 import 'package:audio_wave/audio_wave/audio_wave_controller.dart';
 import 'package:flutter/material.dart';
 
-class AudioWave extends StatelessWidget {
+class AudioWave extends StatefulWidget {
   AudioWave({
     @required this.audioWaveController,
     this.height,
-    this.inActiveColor = const Color(0xFF6E6E7A),
-    this.activeColor = const Color(0xFF81B3C1),
+    this.barColor = const Color(0xFF81B3C1),
   });
 
   final AudioWaveController audioWaveController;
@@ -14,64 +13,14 @@ class AudioWave extends StatelessWidget {
   ///[height] is the height of the container
   final double height;
 
-  /// [inActiveColor] is the color of the inActive bar
-  final Color inActiveColor;
-
-  /// [activeColor] is the color of the active bar
-  final Color activeColor;
+  /// [barColor] is the color of the bar
+  final Color barColor;
 
   @override
-  Widget build(BuildContext context) {
-    double _containerHeight = height;
-    if (_containerHeight == null) {
-      final double _blockSizeVertical =
-          MediaQuery.of(context).size.height / 100;
-      _containerHeight = 3 * _blockSizeVertical;
-    }
-    _containerHeight = 300;
-
-    final double _blockSizeHorizontal = MediaQuery.of(context).size.width / 100;
-
-    final double _barWidth = 0.3 * _blockSizeHorizontal;
-
-    final double _spacing = 0.3 * _blockSizeHorizontal;
-
-    return Container(
-      height: _containerHeight,
-      width: 54 * _blockSizeHorizontal,
-      child: _AnimatedBar(
-        audioWaveController: audioWaveController,
-        spacing: _spacing,
-        containerHeight: _containerHeight,
-        barWidth: _barWidth,
-        activeColor: activeColor,
-        inActiveColor: inActiveColor,
-      ),
-    );
-  }
+  _AudioWaveState createState() => _AudioWaveState();
 }
 
-class _AnimatedBar extends StatefulWidget {
-  final AudioWaveController audioWaveController;
-  final double spacing;
-  final double containerHeight;
-  final double barWidth;
-  final Color activeColor;
-  final Color inActiveColor;
-
-  _AnimatedBar(
-      {@required this.audioWaveController,
-      @required this.spacing,
-      @required this.containerHeight,
-      @required this.barWidth,
-      @required this.activeColor,
-      @required this.inActiveColor});
-
-  @override
-  _AnimatedBarState createState() => _AnimatedBarState();
-}
-
-class _AnimatedBarState extends State<_AnimatedBar> {
+class _AudioWaveState extends State<AudioWave> {
   @override
   void initState() {
     super.initState();
@@ -83,36 +32,57 @@ class _AnimatedBarState extends State<_AnimatedBar> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      shrinkWrap: true,
-      padding: EdgeInsets.all(0),
-      itemCount: widget.audioWaveController.bars.length,
-      scrollDirection: Axis.horizontal,
-      itemBuilder: (BuildContext _, int index) {
-        final double bar = widget.audioWaveController.bars[index];
-        int currentActiveBarsCount = 0;
-        if (widget.audioWaveController.animatedBars != null) {
-          currentActiveBarsCount =
-              widget.audioWaveController.animatedBars.length;
-        }
+    double _containerHeight = widget.height;
+    if (_containerHeight == null) {
+      final double _blockSizeVertical =
+          MediaQuery.of(context).size.height / 100;
+      _containerHeight = 3 * _blockSizeVertical;
+    }
 
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              margin: EdgeInsets.only(right: widget.spacing),
-              height: bar * widget.containerHeight / 100,
-              width: widget.barWidth,
-              decoration: BoxDecoration(
-                color: index < currentActiveBarsCount
-                    ? widget.activeColor
-                    : widget.inActiveColor,
-                borderRadius: BorderRadius.circular(widget.barWidth),
-              ),
-            )
-          ],
-        );
-      },
+    final double _blockSizeHorizontal = MediaQuery.of(context).size.width / 100;
+
+    final double _barWidth = 0.3 * _blockSizeHorizontal;
+
+    final double _spacing = 0.3 * _blockSizeHorizontal;
+
+    return Container(
+      height: _containerHeight,
+      width: 54 * _blockSizeHorizontal,
+      child: StreamBuilder(
+        stream: widget.audioWaveController.audioWaves?.stream ?? null,
+        builder: (context, snapshot) {
+          if (snapshot.data == null) return Container();
+
+          final List<double> wave = snapshot.data;
+
+          return ListView.builder(
+            shrinkWrap: true,
+            padding: EdgeInsets.all(0),
+            itemCount: wave.length,
+            scrollDirection: Axis.horizontal,
+            itemBuilder: (BuildContext _, int index) {
+              double bar = wave[index];
+              bar = bar * 100;
+              bar = bar < 10 ? 10 : bar;
+
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    margin: EdgeInsets.only(right: _spacing),
+                    height: bar * _containerHeight / 100,
+                    width: _barWidth,
+                    decoration: BoxDecoration(
+                      color: widget.barColor,
+                      borderRadius: BorderRadius.circular(_barWidth),
+                    ),
+                  )
+                ],
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

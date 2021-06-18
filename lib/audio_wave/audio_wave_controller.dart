@@ -1,57 +1,99 @@
-import 'package:audio_wave/pausable_timer/pausable_timer.dart';
+import 'dart:async';
+
+import 'package:audio_visualizer/audio_visualizer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:just_audio/just_audio.dart';
 
 class AudioWaveController {
-  final List<double> bars;
+  StreamController<List<double>> audioWaves;
+  Function _audioWaveStatusChangedCallBack;
 
-  List<double> animatedBars;
+  int _bufferSize = 4096;
+  static const int _sampleRate = 44100;
 
-  Function _animatedBarsCallback;
+  final String _audioPath;
 
-  int _countBeat = 0;
+  List<int> _audioByte;
 
-  PausableTimer _pausableTimer;
+  Duration _audioDuration;
 
-  AudioWaveController(
-      {@required this.bars,
-      Duration animationDuration = const Duration(seconds: 1)}) {
-    int _beatRateInMillisecond =
-        animationDuration.inMilliseconds ~/ bars.length;
+  final AudioPlayer _audioPlayer = AudioPlayer();
 
-    _pausableTimer =
-        PausableTimer(Duration(milliseconds: _beatRateInMillisecond), () {
-      int mo = _countBeat % bars.length;
-
-      animatedBars = List.from(bars.getRange(0, mo + 1));
-
-      if (_animatedBarsCallback != null) {
-        _animatedBarsCallback();
-      }
-
-      _countBeat++;
-      if (_countBeat != bars.length) {
-        _pausableTimer.reset();
-        _pausableTimer.start();
-      } else {
-        _countBeat = 0;
-      }
-    });
+  AudioWaveController({@required String audioPath})
+      : this._audioPath = audioPath {
+    _init();
   }
 
-  void play() {
-    if (_pausableTimer.isExpired) {
-      animatedBars = [];
-      _pausableTimer.reset();
+  void addCallback(Function audioWaveStatusChangedCallBack) {
+    _audioWaveStatusChangedCallBack = audioWaveStatusChangedCallBack;
+  }
+
+  Future<void> _init() async {
+    _audioByte =
+        (await rootBundle.load(_audioPath)).buffer.asUint8List().toList();
+
+    _bufferSize = _audioByte.length ~/ 70;
+
+    _audioDuration = await _audioPlayer.setAsset(_audioPath);
+  }
+
+  void play() async {
+    int milliSecondForEachBeat = 70;
+
+    _audioPlayer.play();
+
+    final AudioVisualizer visualizer = AudioVisualizer(
+      windowSize: _bufferSize,
+      bandType: BandType.FourBandVisual,
+      sampleRate: _sampleRate,
+      zeroHzScale: 0.05,
+      fallSpeed: 0.08,
+      sensibility: 8.0,
+    );
+
+    audioWaves = StreamController<List<double>>();
+
+    if (_audioWaveStatusChangedCallBack != null) {
+      _audioWaveStatusChangedCallBack();
     }
 
-    _pausableTimer.start();
+    int offset = 0;
+    bool isEnd = false;
+
+    final List<double> waveStream = [];
+    while (!isEnd) {
+      print(isEnd);
+      var end = offset + _bufferSize;
+      if (end >= _audioByte.length) {
+        isEnd = true;
+        end = _audioByte.length;
+      }
+      final block = _audioByte.sublist(offset, end);
+
+      final List<double> transformValue = visualizer.transform(block);
+      double averageOfTransformValue =
+          transformValue.reduce((value, element) => value + element) /
+              transformValue.length;
+
+      waveStream.add(averageOfTransformValue);
+      audioWaves.add(waveStream);
+
+      await Future.delayed(Duration(milliseconds: milliSecondForEachBeat));
+
+      offset += _bufferSize;
+      if (isEnd) {
+        await _stop();
+        break;
+      }
+    }
   }
 
-  void pause() {
-    _pausableTimer.pause();
-  }
+  Future<void> pause() async {}
 
-  void addCallback(Function animatedBarsCallback) {
-    _animatedBarsCallback = animatedBarsCallback;
+  Future<void> _stop() async {
+    await audioWaves?.close();
+    audioWaves = null;
+    //   await _player.stop();
   }
 }
