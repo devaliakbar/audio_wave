@@ -15,10 +15,21 @@ class _MainAudioWaveState extends State<AudioWaveExample> {
     super.initState();
 
     audioWaveController = AudioWaveController(audioPath: 'assets/preview.mp3');
+
+    audioWaveController.addListener(() {
+      setState(() {});
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    String title = audioWaveController.audioWaveStatus == AudioWaveStatus.play
+        ? "Pause"
+        : audioWaveController.audioWaveStatus == AudioWaveStatus.initialized ||
+                audioWaveController.audioWaveStatus == AudioWaveStatus.pause
+            ? "Play"
+            : null;
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Audio Wave"),
@@ -28,15 +39,21 @@ class _MainAudioWaveState extends State<AudioWaveExample> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           RaisedButton(
-              child: Text("Pause"),
-              onPressed: () {
-                audioWaveController.pause();
-              }),
-          RaisedButton(
-              child: Text("Play"),
-              onPressed: () {
-                audioWaveController.play();
-              }),
+            child: Text(title ?? ""),
+            onPressed: title == null
+                ? null
+                : () {
+                    if (audioWaveController.audioWaveStatus ==
+                            AudioWaveStatus.initialized ||
+                        audioWaveController.audioWaveStatus ==
+                            AudioWaveStatus.pause) {
+                      audioWaveController.play();
+                    } else if (audioWaveController.audioWaveStatus ==
+                        AudioWaveStatus.play) {
+                      audioWaveController.pause();
+                    }
+                  },
+          ),
           AudioWave(
             audioWaveController: audioWaveController,
           ),

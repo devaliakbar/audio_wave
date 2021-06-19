@@ -37,7 +37,6 @@ class AudioWave extends StatelessWidget {
 
     return Container(
       height: _containerHeight,
-      width: 54 * _blockSizeHorizontal,
       child: _AnimatedBar(
           audioWaveController: audioWaveController,
           activeBarColor: activeBarColor,
@@ -73,28 +72,54 @@ class _AnimatedBarState extends State<_AnimatedBar>
   AnimationController _animationController;
   Animation<int> _barAnimation;
 
+  int currentSelectedBarIndex = 0;
+
   @override
   void initState() {
     super.initState();
 
-    widget.audioWaveController.addCallback(() {
-      if (widget.audioWaveController.audioWaveStatus ==
-          AudioWaveStatus.initialized) {
-        _animationController = AnimationController(
-          duration: widget.audioWaveController.audioDuration,
-          vsync: this,
-        );
+    _setUpBarAnimation();
+  }
 
-        _barAnimation = IntTween(
-                begin: 1, end: widget.audioWaveController.audioWaves.length)
-            .animate(_animationController);
+  void _setUpBarAnimation() {
+    widget.audioWaveController.addListener(() {
+      AudioWaveStatus audioWaveStatus =
+          widget.audioWaveController.audioWaveStatus;
 
+      if (audioWaveStatus == AudioWaveStatus.initialized) {
+        _initializeAnimationController();
         setState(() {});
-      } else if (widget.audioWaveController.audioWaveStatus ==
-          AudioWaveStatus.play) {
+      } else if (audioWaveStatus == AudioWaveStatus.play) {
         _animationController.forward();
+      } else if (audioWaveStatus == AudioWaveStatus.pause) {
+        _animationController.stop();
+        _animationController.reset();
+        _initializeAnimationController();
       }
     });
+  }
+
+  void _initializeAnimationController() {
+    if (_animationController == null) {
+      _animationController = AnimationController(
+        duration: widget.audioWaveController.audioDuration,
+        vsync: this,
+      );
+
+      _animationController.addStatusListener((status) async {
+        if (status == AnimationStatus.completed) {
+          _animationController.reset();
+          currentSelectedBarIndex = 0;
+          _initializeAnimationController();
+          widget.audioWaveController.onStopAudio();
+        }
+      });
+    }
+
+    _barAnimation = IntTween(
+            begin: currentSelectedBarIndex,
+            end: widget.audioWaveController.audioWaves.length)
+        .animate(_animationController);
   }
 
   @override
@@ -106,36 +131,39 @@ class _AnimatedBarState extends State<_AnimatedBar>
     }
 
     return AnimatedBuilder(
-        animation: _animationController,
-        builder: (_, __) {
-          return ListView.builder(
-            shrinkWrap: true,
-            padding: EdgeInsets.all(0),
-            itemCount: widget.audioWaveController.audioWaves.length,
-            scrollDirection: Axis.horizontal,
-            itemBuilder: (BuildContext _, int index) {
-              double bar = widget.audioWaveController.audioWaves[index];
-              bar = bar * 100;
-              bar = bar < 10 ? 10 : bar;
+      animation: _animationController,
+      builder: (_, __) {
+        currentSelectedBarIndex = _barAnimation.value;
 
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    margin: EdgeInsets.only(right: widget.spacing),
-                    height: bar * widget.containerHeight / 100,
-                    width: widget.barWidth,
-                    decoration: BoxDecoration(
-                      color: index <= _barAnimation.value
-                          ? widget.activeBarColor
-                          : widget.inActiveBarColor,
-                      borderRadius: BorderRadius.circular(widget.barWidth),
-                    ),
-                  )
-                ],
-              );
-            },
-          );
-        });
+        return ListView.builder(
+          shrinkWrap: true,
+          padding: EdgeInsets.all(0),
+          itemCount: widget.audioWaveController.audioWaves.length,
+          scrollDirection: Axis.horizontal,
+          itemBuilder: (BuildContext _, int index) {
+            double bar = widget.audioWaveController.audioWaves[index];
+            bar = bar * 100;
+            bar = bar < 10 ? 10 : bar;
+
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  margin: EdgeInsets.only(right: widget.spacing),
+                  height: bar * widget.containerHeight / 100,
+                  width: widget.barWidth,
+                  decoration: BoxDecoration(
+                    color: index <= _barAnimation.value
+                        ? widget.activeBarColor
+                        : widget.inActiveBarColor,
+                    borderRadius: BorderRadius.circular(widget.barWidth),
+                  ),
+                )
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 }

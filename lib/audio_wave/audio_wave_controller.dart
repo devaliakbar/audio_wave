@@ -9,24 +9,58 @@ import 'package:just_audio/just_audio.dart';
 enum AudioWaveStatus { initializing, initialized, play, pause }
 
 class AudioWaveController {
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ///************************************************PUBLIC***************************************************************
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
   List<double> audioWaves;
 
   Duration audioDuration;
 
   AudioWaveStatus audioWaveStatus = AudioWaveStatus.initializing;
 
-  Function _audioWaveStatusChangedCallBack;
-
-  final AudioPlayer _audioPlayer = AudioPlayer();
-
   AudioWaveController({@required String audioPath}) {
     _init(audioPath);
   }
 
   //SETTING INTERFACE FOR LISTENING CONTROLLER CHANGES
-  void addCallback(Function audioWaveStatusChangedCallBack) {
-    _audioWaveStatusChangedCallBack = audioWaveStatusChangedCallBack;
+  void addListener(Function audioWaveStatusChangedCallBack) {
+    _listeners.add(audioWaveStatusChangedCallBack);
   }
+
+  //PLAY AUDIO
+  void play() {
+    if (audioWaveStatus == AudioWaveStatus.initialized ||
+        audioWaveStatus == AudioWaveStatus.pause) {
+      audioWaveStatus = AudioWaveStatus.play;
+      _audioPlayer.play();
+      _notifyChanges();
+    }
+  }
+
+  //PAUSE AUDIO
+  void pause() async {
+    if (audioWaveStatus == AudioWaveStatus.play) {
+      audioWaveStatus = AudioWaveStatus.pause;
+      _notifyChanges();
+      await _audioPlayer.pause();
+    }
+  }
+
+  //ON STOP AUDIO
+  void onStopAudio() {
+    audioWaveStatus = AudioWaveStatus.initialized;
+    _audioPlayer.stop();
+    _notifyChanges();
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ///************************************************PRIVATE**************************************************************
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  List<Function> _listeners = [];
+
+  final AudioPlayer _audioPlayer = AudioPlayer();
 
   //INITIALIZING
   Future<void> _init(String audioPath) async {
@@ -40,6 +74,15 @@ class AudioWaveController {
     audioWaveStatus = AudioWaveStatus.initialized;
     _notifyChanges();
   }
+
+  //NOTIFYING LISTENERS
+  void _notifyChanges() {
+    for (Function listener in _listeners) listener();
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ///************************************************STATIC**************************************************************
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   //CREATE WAVEBAR FROM AUDIO
   static List<double> _createWaveBar(List<int> _audioByte) {
@@ -77,26 +120,5 @@ class AudioWaveController {
     }
 
     return waveStream;
-  }
-
-  //PLAY AUDIO
-  void play() async {
-    if (audioWaveStatus == AudioWaveStatus.initialized) {
-      audioWaveStatus = AudioWaveStatus.play;
-      _audioPlayer.play();
-      _notifyChanges();
-    }
-  }
-
-  //PAUSE AUDIO
-  Future<void> pause() async {
-    _audioPlayer.pause();
-  }
-
-  //NOTIFYING LISTENERS
-  void _notifyChanges() {
-    if (_audioWaveStatusChangedCallBack != null) {
-      _audioWaveStatusChangedCallBack();
-    }
   }
 }
