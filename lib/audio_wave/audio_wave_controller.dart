@@ -6,23 +6,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
 
+enum AudioWaveStatus { initializing, initialized, play, pause }
+
 class AudioWaveController {
   List<double> audioWaves;
+
+  Duration audioDuration;
+
+  AudioWaveStatus audioWaveStatus = AudioWaveStatus.initializing;
+
   Function _audioWaveStatusChangedCallBack;
-
-  final String _audioPath;
-
-  List<int> _audioByte;
-
-  Duration _audioDuration;
 
   final AudioPlayer _audioPlayer = AudioPlayer();
 
-  int currentPlayedBarIndex;
-
-  AudioWaveController({@required String audioPath})
-      : this._audioPath = audioPath {
-    _init();
+  AudioWaveController({@required String audioPath}) {
+    _init(audioPath);
   }
 
   //SETTING INTERFACE FOR LISTENING CONTROLLER CHANGES
@@ -31,17 +29,16 @@ class AudioWaveController {
   }
 
   //INITIALIZING
-  Future<void> _init() async {
-    _audioByte =
-        (await rootBundle.load(_audioPath)).buffer.asUint8List().toList();
+  Future<void> _init(String audioPath) async {
+    List<int> _audioByte =
+        (await rootBundle.load(audioPath)).buffer.asUint8List().toList();
 
-    _audioDuration = await _audioPlayer.setAsset(_audioPath);
+    audioDuration = await _audioPlayer.setAsset(audioPath);
 
     audioWaves = await compute(_createWaveBar, _audioByte);
 
-    if (_audioWaveStatusChangedCallBack != null) {
-      _audioWaveStatusChangedCallBack();
-    }
+    audioWaveStatus = AudioWaveStatus.initialized;
+    _notifyChanges();
   }
 
   //CREATE WAVEBAR FROM AUDIO
@@ -83,25 +80,23 @@ class AudioWaveController {
   }
 
   //PLAY AUDIO
-  void play() {
-    _audioPlayer.play();
-    currentPlayedBarIndex = 0;
-
-    int millisecondsOfBeat = _audioDuration.inMilliseconds ~/ audioWaves.length;
-
-    Timer.periodic(Duration(milliseconds: millisecondsOfBeat), (timer) {
-      currentPlayedBarIndex++;
-
-      if (_audioWaveStatusChangedCallBack != null) {
-        _audioWaveStatusChangedCallBack();
-      }
-
-      if (currentPlayedBarIndex == audioWaves.length) {
-        timer.cancel();
-      }
-    });
+  void play() async {
+    if (audioWaveStatus == AudioWaveStatus.initialized) {
+      audioWaveStatus = AudioWaveStatus.play;
+      _audioPlayer.play();
+      _notifyChanges();
+    }
   }
 
   //PAUSE AUDIO
-  Future<void> pause() async {}
+  Future<void> pause() async {
+    _audioPlayer.pause();
+  }
+
+  //NOTIFYING LISTENERS
+  void _notifyChanges() {
+    if (_audioWaveStatusChangedCallBack != null) {
+      _audioWaveStatusChangedCallBack();
+    }
+  }
 }
