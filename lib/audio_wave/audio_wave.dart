@@ -75,6 +75,12 @@ class _AnimatedBarState extends State<_AnimatedBar>
   int currentSelectedBarIndex = 0;
 
   @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
 

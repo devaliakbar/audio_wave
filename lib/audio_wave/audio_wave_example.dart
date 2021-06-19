@@ -22,6 +22,13 @@ class _MainAudioWaveState extends State<AudioWaveExample> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+
+    audioWaveController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     String title = audioWaveController.audioWaveStatus == AudioWaveStatus.play
         ? "Pause"
