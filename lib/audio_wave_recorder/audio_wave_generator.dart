@@ -93,19 +93,21 @@ class AudioWaveGenerator {
   List<double> reduceArraySize(int reduceSize, List<double> data) {
     List<double> reducedArray = [];
 
+    final int divideSize = data.length ~/ reduceSize;
+
     int index = 0;
     while (index < _BAR_LENGTH) {
       if (reducedArray.length == reduceSize) {
         break;
       }
 
-      int meanUtilIndex = reduceSize;
+      int meanUtilIndex = divideSize;
       if (index > 0) {
-        meanUtilIndex = index * reduceSize;
+        meanUtilIndex = index * divideSize;
       }
 
       double total = 0;
-      int indexForMean = meanUtilIndex - reduceSize;
+      int indexForMean = meanUtilIndex - divideSize;
       int countForMean = 0;
       while (indexForMean < meanUtilIndex) {
         if (indexForMean >= (data.length - 1)) {
@@ -118,11 +120,11 @@ class AudioWaveGenerator {
       }
       reducedArray.add(total / countForMean);
 
-      index = index + reduceSize;
+      index = index + divideSize;
     }
 
     if (reducedArray.length != reduceSize) {
-      int indexForMean = data.length - reduceSize;
+      int indexForMean = data.length - divideSize;
       double total = 0;
       int countForMean = 0;
       while (indexForMean < data.length) {
