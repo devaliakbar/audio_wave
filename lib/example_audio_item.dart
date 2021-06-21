@@ -21,6 +21,8 @@ class _ExampleAudioItemState extends State<ExampleAudioItem> {
 
     _audioWaveController =
         AudioWaveController(audioWaveModel: widget.audioWaveModel);
+
+    _audioWaveController.addListener(() {});
   }
 
   @override
@@ -31,14 +33,30 @@ class _ExampleAudioItemState extends State<ExampleAudioItem> {
         children: [
           Row(
             children: [
-              IconButton(
-                  icon: Icon(
-                    Icons.play_arrow,
-                    size: 25,
-                  ),
-                  onPressed: () {
-                    _audioWaveController.play();
-                  }),
+              _audioWaveController.audioWaveStatus ==
+                          AudioWaveStatus.initialized ||
+                      _audioWaveController.audioWaveStatus ==
+                          AudioWaveStatus.play
+                  ? IconButton(
+                      icon: Icon(
+                        _audioWaveController.audioWaveStatus ==
+                                AudioWaveStatus.initialized
+                            ? Icons.play_arrow
+                            : Icons.pause,
+                        size: 25,
+                      ),
+                      onPressed: () {
+                        if (_audioWaveController.audioWaveStatus ==
+                            AudioWaveStatus.initialized) {
+                          _audioWaveController.play();
+                        }
+
+                        if (_audioWaveController.audioWaveStatus ==
+                            AudioWaveStatus.play) {
+                          _audioWaveController.pause();
+                        }
+                      })
+                  : Container(),
               Expanded(
                 child: _audioWaveController.audioWaveStatus ==
                         AudioWaveStatus.initialized
