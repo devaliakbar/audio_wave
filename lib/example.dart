@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:audio_wave/audio_wave/audio_wave_recorder/audio_wave_record_controller.dart';
@@ -16,6 +17,8 @@ class _ExampleState extends State<Example> {
 
   final List<AudioWaveModel> audios = [];
 
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
@@ -33,6 +36,11 @@ class _ExampleState extends State<Example> {
 
   @override
   Widget build(BuildContext context) {
+    Timer(Duration(milliseconds: 200), () {
+      _scrollController.animateTo(_scrollController.position.maxScrollExtent,
+          duration: Duration(milliseconds: 200), curve: Curves.easeInOut);
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Example"),
@@ -44,6 +52,7 @@ class _ExampleState extends State<Example> {
           children: [
             Expanded(
               child: ListView.builder(
+                controller: _scrollController,
                 itemCount: audios.length,
                 itemBuilder: (BuildContext context, int index) {
                   return ListTile(
