@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:audio_wave/audio_wave_recorder/audio_wave_record_controller.dart';
+import 'package:audio_wave/models/audio_wave_generate_model.dart';
 import 'package:flutter/material.dart';
 
 class AudioWaveRecordWidget extends StatelessWidget {
@@ -35,50 +36,57 @@ class AudioWaveRecordWidget extends StatelessWidget {
 
     final double _spacing = 0.3 * _blockSizeHorizontal;
 
-    return Container(
-      height: _containerHeight,
-      width: 54 * _blockSizeHorizontal,
-      child: StreamBuilder(
-        stream: audioWaveRecordController.audioFFT?.stream ?? null,
-        builder: (context, snapshot) {
-          if (snapshot.data == null) return Container();
+    return StreamBuilder(
+      stream: audioWaveRecordController.recordStream?.stream ?? null,
+      builder: (context, snapshot) {
+        if (snapshot.data == null) return Container();
 
-          final List<double> buffer = snapshot.data;
+        AudioWaveGenerateModel audioWaveGenerate = snapshot.data;
 
-          Timer(Duration(milliseconds: 25), () {
-            _scrollController.animateTo(
-                _scrollController.position.maxScrollExtent,
-                duration: Duration(milliseconds: 25),
-                curve: Curves.linear);
-          });
+        final List<double> buffer = audioWaveGenerate.waves;
 
-          return ListView.builder(
-            controller: _scrollController,
-            padding: EdgeInsets.all(0),
-            shrinkWrap: true,
-            itemCount: buffer.length,
-            scrollDirection: Axis.horizontal,
-            itemBuilder: (BuildContext _, int index) {
-              final double bar = buffer[index] * 100;
+        Timer(Duration(milliseconds: 25), () {
+          _scrollController.animateTo(
+              _scrollController.position.maxScrollExtent,
+              duration: Duration(milliseconds: 25),
+              curve: Curves.linear);
+        });
 
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    margin: EdgeInsets.only(right: _spacing),
-                    height: bar * _containerHeight / 100,
-                    width: _barWidth,
-                    decoration: BoxDecoration(
-                      color: activeColor,
-                      borderRadius: BorderRadius.circular(_barWidth),
-                    ),
-                  )
-                ],
-              );
-            },
-          );
-        },
-      ),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: _containerHeight,
+              child: ListView.builder(
+                controller: _scrollController,
+                padding: EdgeInsets.all(0),
+                shrinkWrap: true,
+                itemCount: buffer.length,
+                scrollDirection: Axis.horizontal,
+                itemBuilder: (BuildContext _, int index) {
+                  final double bar = buffer[index] * 100;
+
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        margin: EdgeInsets.only(right: _spacing),
+                        height: bar * _containerHeight / 100,
+                        width: _barWidth,
+                        decoration: BoxDecoration(
+                          color: activeColor,
+                          borderRadius: BorderRadius.circular(_barWidth),
+                        ),
+                      )
+                    ],
+                  );
+                },
+              ),
+            ),
+            Text("${audioWaveGenerate.duration.inSeconds}")
+          ],
+        );
+      },
     );
   }
 }

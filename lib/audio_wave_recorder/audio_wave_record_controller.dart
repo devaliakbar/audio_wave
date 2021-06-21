@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:audio_wave/audio_wave_recorder/audio_wave_generator.dart';
+import 'package:audio_wave/models/audio_wave_generate_model.dart';
 import 'package:file/local.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
@@ -21,17 +22,18 @@ class AudioWaveRecordController {
 
   String errorMsg;
 
-  StreamController<List<double>> audioFFT;
+  StreamController<AudioWaveGenerateModel> recordStream;
 
   AudioWaveRecordController({@required this.onRecordComplete}) {
     _init();
   }
 
   void startRecord() async {
-    audioFFT = StreamController<List<double>>();
+    recordStream = StreamController<AudioWaveGenerateModel>();
     _audioWaveGenerator =
         AudioWaveGenerator(onGenerateWave: (List<double> waves) {
-      audioFFT.add(waves);
+      recordStream.add(
+          AudioWaveGenerateModel(waves: waves, duration: _current.duration));
     });
 
     await _recorder.start();
@@ -57,8 +59,8 @@ class AudioWaveRecordController {
     _current = await _recorder.stop();
     currentStatus = _current.status;
 
-    await audioFFT?.close();
-    audioFFT = null;
+    await recordStream?.close();
+    recordStream = null;
 
     final List<double> waves = _audioWaveGenerator.getFinalWave();
     _audioWaveGenerator = null;
@@ -126,8 +128,8 @@ class AudioWaveRecordController {
 
   void _addToWaves(double wave) {
     if (_audioWaveGenerator != null) {
-      if (audioFFT != null) {
-        if (!audioFFT.isClosed) {
+      if (recordStream != null) {
+        if (!recordStream.isClosed) {
           _audioWaveGenerator.addToStream(wave);
         }
       }

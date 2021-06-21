@@ -1,4 +1,4 @@
-import 'package:audio_wave/main_app.dart';
+import 'package:audio_wave/example.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       debugShowCheckedModeBanner: false,
-      home: MainApp(),
+      home: Example(),
     );
   }
 }
