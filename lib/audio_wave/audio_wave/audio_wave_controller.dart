@@ -1,9 +1,10 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:audio_wave/audio_wave/models/audio_wave_model.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:just_audio/just_audio.dart';
 
 enum AudioWaveStatus { initializing, initialized, play, pause }
 
@@ -17,11 +18,13 @@ class AudioWaveController {
   Duration audioDuration;
 
   AudioWaveStatus audioWaveStatus = AudioWaveStatus.initializing;
+  File audioFile;
 
   AudioWaveController({@required AudioWaveModel audioWaveModel}) {
     audioWaves = audioWaveModel.waves;
     audioDuration = audioWaveModel.duration;
-    _init(audioWaveModel.audio.path);
+    audioFile = audioWaveModel.audio;
+    _init();
   }
 
   //SETTING INTERFACE FOR LISTENING CONTROLLER CHANGES
@@ -31,10 +34,13 @@ class AudioWaveController {
 
   //PLAY AUDIO
   void play() {
-    if (audioWaveStatus == AudioWaveStatus.initialized ||
-        audioWaveStatus == AudioWaveStatus.pause) {
+    if (audioWaveStatus == AudioWaveStatus.initialized) {
       audioWaveStatus = AudioWaveStatus.play;
-      _audioPlayer.play();
+      _audioPlayer.play(audioFile.path, isLocal: true);
+      _notifyChanges();
+    } else if (audioWaveStatus == AudioWaveStatus.pause) {
+      audioWaveStatus = AudioWaveStatus.play;
+      _audioPlayer.resume();
       _notifyChanges();
     }
   }
@@ -43,8 +49,8 @@ class AudioWaveController {
   void pause() async {
     if (audioWaveStatus == AudioWaveStatus.play) {
       audioWaveStatus = AudioWaveStatus.pause;
+      _audioPlayer.pause();
       _notifyChanges();
-      await _audioPlayer.pause();
     }
   }
 
@@ -52,6 +58,7 @@ class AudioWaveController {
   void onStopAudio() {
     audioWaveStatus = AudioWaveStatus.initialized;
     _audioPlayer.stop();
+    _indexForBarAnimation = 0;
     _notifyChanges();
   }
 
@@ -59,6 +66,8 @@ class AudioWaveController {
     _audioPlayer.dispose();
     audioWaves = null;
     audioDuration = null;
+    _indexForBarAnimation = 0;
+    _triggerDurationForBarAnimation = [];
     audioWaveStatus = AudioWaveStatus.initializing;
   }
 
@@ -67,13 +76,31 @@ class AudioWaveController {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   List<Function> _listeners = [];
-
   final AudioPlayer _audioPlayer = AudioPlayer();
 
+  int _indexForBarAnimation = 0;
+  List<int> _triggerDurationForBarAnimation = [];
   //INITIALIZING
-  Future<void> _init(String audioPath) async {
-    //   await _audioPlayer.setFilePath(audioPath);
+  Future<void> _init() async {
+    int durationInMiliiSecond = audioDuration.inMilliseconds;
+    int durationForMultiply = durationInMiliiSecond ~/ audioWaves.length;
+
+    for (int i = 1; i < audioWaves.length; i++) {
+      _triggerDurationForBarAnimation.add(durationForMultiply * i);
+    }
+
+    _triggerDurationForBarAnimation.add(audioDuration.inMilliseconds);
+
+    _audioPlayer.onDurationChanged.listen((Duration d) {
+      int changedDurationInMilliSecond = d.inMilliseconds;
+      if (changedDurationInMilliSecond >=
+          _triggerDurationForBarAnimation[_indexForBarAnimation]) {
+        //TODO ++_indexForBarAnimation
+      }
+    });
+
     audioWaveStatus = AudioWaveStatus.initialized;
+
     _notifyChanges();
   }
 

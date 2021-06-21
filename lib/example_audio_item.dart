@@ -31,10 +31,14 @@ class _ExampleAudioItemState extends State<ExampleAudioItem> {
         children: [
           Row(
             children: [
-              Icon(
-                Icons.play_arrow,
-                size: 25,
-              ),
+              IconButton(
+                  icon: Icon(
+                    Icons.play_arrow,
+                    size: 25,
+                  ),
+                  onPressed: () {
+                    _audioWaveController.play();
+                  }),
               Expanded(
                 child: AudioWave(audioWaveController: _audioWaveController),
               )
