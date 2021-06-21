@@ -35,35 +35,34 @@ class AudioWaveController {
   }
 
   //PLAY AUDIO
-  void play() {
+  void play() async {
     if (audioWaveStatus == AudioWaveStatus.initialized) {
       audioWaveStatus = AudioWaveStatus.play;
-      _audioPlayer.play(audioFile.path, isLocal: true);
+      await _audioPlayer.play(audioFile.path, isLocal: true);
+      _setUpBarAnimation();
       _notifyChanges();
     } else if (audioWaveStatus == AudioWaveStatus.pause) {
       audioWaveStatus = AudioWaveStatus.play;
-      _audioPlayer.resume();
+      await _audioPlayer.resume();
+      _setUpBarAnimation();
       _notifyChanges();
     }
-    _setUpBarAnimation();
   }
 
   //PAUSE AUDIO
   void pause() async {
     if (audioWaveStatus == AudioWaveStatus.play) {
       audioWaveStatus = AudioWaveStatus.pause;
-      _audioPlayer.pause();
+      await _audioPlayer.pause();
       _notifyChanges();
     }
-    _timerForBarAnimation.cancel();
   }
 
   void dispose() async {
     _audioPlayer.dispose();
     audioWaves = null;
     audioDuration = null;
-    _timerForBarAnimation?.cancel();
-    _timerForBarAnimation = null;
+
     _indexForBarAnimation = 0;
     audioWaveStatus = AudioWaveStatus.initializing;
     await barAnimationStream?.close();
@@ -78,8 +77,6 @@ class AudioWaveController {
   final AudioPlayer _audioPlayer = AudioPlayer();
 
   int _indexForBarAnimation = 0;
-
-  Timer _timerForBarAnimation;
 
   //INITIALIZING
   Future<void> _init() async {
@@ -98,7 +95,6 @@ class AudioWaveController {
   void _onStopAudio() {
     audioWaveStatus = AudioWaveStatus.initialized;
     _indexForBarAnimation = 0;
-    _timerForBarAnimation.cancel();
     _notifyChanges();
   }
 
@@ -112,8 +108,12 @@ class AudioWaveController {
     int durationInMiliiSecond = audioDuration.inMilliseconds;
     int durationForMultiply = durationInMiliiSecond ~/ audioWaves.length;
 
-    _timerForBarAnimation = Timer.periodic(
-        Duration(milliseconds: durationForMultiply),
-        (Timer t) => barAnimationStream.add(++_indexForBarAnimation));
+    Timer.periodic(Duration(milliseconds: durationForMultiply), (Timer t) {
+      if (audioWaveStatus == AudioWaveStatus.play) {
+        barAnimationStream.add(++_indexForBarAnimation);
+      } else {
+        t.cancel();
+      }
+    });
   }
 }
