@@ -9,33 +9,22 @@ class AudioWaveGenerator {
   AudioWaveGenerator({@required this.onGenerateWave});
 
   List<double> currentBuffer = [];
+  List<double> visualBuffer = [];
 
   void addToStream(double data) {
-    currentBuffer.add(_reMapWave(data));
+    visualBuffer.add(_reMapWave(data));
+    onGenerateWave(visualBuffer);
 
-    if (wavesInDimension.length == 0) {
-      if (currentBuffer.length == _BAR_LENGTH) {
-        addToMainStream(0, currentBuffer);
-        _notifyListener(wavesInDimension[wavesInDimension.length - 1]);
-        currentBuffer = [];
-        return;
-      }
-
-      _notifyListener(currentBuffer);
-      return;
+    if (visualBuffer.length > 120) {
+      visualBuffer.removeAt(0);
     }
+
+    currentBuffer.add(_reMapWave(data));
 
     if (currentBuffer.length == _BAR_LENGTH) {
       addToMainStream(0, currentBuffer);
       currentBuffer = [];
-      return;
     }
-
-    var notifyWaves =
-        new List<double>.from(wavesInDimension[wavesInDimension.length - 1])
-          ..addAll(currentBuffer);
-
-    _notifyListener(notifyWaves);
   }
 
   List<double> getFinalWave() {
@@ -46,10 +35,6 @@ class AudioWaveGenerator {
       return currentBuffer;
     }
     return null;
-  }
-
-  void _notifyListener(List<double> currentBuffer) {
-    onGenerateWave(currentBuffer);
   }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

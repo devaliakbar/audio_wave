@@ -1,13 +1,9 @@
+import 'dart:async';
+
 import 'package:audio_wave/audio_wave_recorder/audio_wave_record_controller.dart';
 import 'package:flutter/material.dart';
 
 class AudioWaveRecordWidget extends StatelessWidget {
-  AudioWaveRecordWidget({
-    @required this.audioWaveRecordController,
-    this.height,
-    this.activeColor = const Color(0xFF81B3C1),
-  });
-
   final AudioWaveRecordController audioWaveRecordController;
 
   ///[height] is the height of the container
@@ -15,6 +11,14 @@ class AudioWaveRecordWidget extends StatelessWidget {
 
   /// [activeColor] is the color of the active bar
   final Color activeColor;
+
+  final ScrollController _scrollController = ScrollController();
+
+  AudioWaveRecordWidget({
+    @required this.audioWaveRecordController,
+    this.height,
+    this.activeColor = const Color(0xFF81B3C1),
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +45,15 @@ class AudioWaveRecordWidget extends StatelessWidget {
 
           final List<double> buffer = snapshot.data;
 
+          Timer(Duration(milliseconds: 25), () {
+            _scrollController.animateTo(
+                _scrollController.position.maxScrollExtent,
+                duration: Duration(milliseconds: 25),
+                curve: Curves.linear);
+          });
+
           return ListView.builder(
+            controller: _scrollController,
             padding: EdgeInsets.all(0),
             shrinkWrap: true,
             itemCount: buffer.length,
