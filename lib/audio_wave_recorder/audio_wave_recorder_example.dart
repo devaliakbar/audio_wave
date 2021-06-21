@@ -1,10 +1,12 @@
+import 'dart:io';
+
 import 'package:audio_wave/audio_wave_recorder/audio_wave_record_controller.dart';
 import 'package:audio_wave/audio_wave_recorder/audio_wave_recorder.dart';
 import 'package:flutter/material.dart';
 
 class AudioWaveRecorderExample extends StatelessWidget {
   final AudioWaveRecordController _audioWaveRecordController =
-      AudioWaveRecordController();
+      AudioWaveRecordController(onRecordComplete: (File audioFile) {});
 
   @override
   Widget build(BuildContext context) {

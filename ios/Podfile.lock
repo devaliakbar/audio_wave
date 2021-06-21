@@ -4,6 +4,8 @@ PODS:
   - audio_visualizer (0.0.1):
     - Flutter
   - Flutter (1.0.0)
+  - flutter_audio_recorder (0.5.4):
+    - Flutter
   - just_audio (0.0.1):
     - Flutter
   - path_provider (0.0.1):
@@ -13,6 +15,7 @@ DEPENDENCIES:
   - audio_session (from `.symlinks/plugins/audio_session/ios`)
   - audio_visualizer (from `.symlinks/plugins/audio_visualizer/ios`)
   - Flutter (from `Flutter`)
+  - flutter_audio_recorder (from `.symlinks/plugins/flutter_audio_recorder/ios`)
   - just_audio (from `.symlinks/plugins/just_audio/ios`)
   - path_provider (from `.symlinks/plugins/path_provider/ios`)
 
@@ -23,6 +26,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/audio_visualizer/ios"
   Flutter:
     :path: Flutter
+  flutter_audio_recorder:
+    :path: ".symlinks/plugins/flutter_audio_recorder/ios"
   just_audio:
     :path: ".symlinks/plugins/just_audio/ios"
   path_provider:
@@ -32,6 +37,7 @@ SPEC CHECKSUMS:
   audio_session: 4f3e461722055d21515cf3261b64c973c062f345
   audio_visualizer: fa988c18b7e02e9132f90c7c9098109863794b92
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  flutter_audio_recorder: eb998d4e75e59b39d9e3ca1818a5e0f3a82f5836
   just_audio: baa7252489dbcf47a4c7cc9ca663e9661c99aafa
   path_provider: abfe2b5c733d04e238b0d8691db0cfd63a27a93c
 

@@ -78,16 +78,20 @@ class _AnimatedBarState extends State<_AnimatedBar> {
 
   @override
   Widget build(BuildContext context) {
-    return widget.audioWaveRecordController.animatedBars == null
-        ? Container()
-        : ListView.builder(
+    return StreamBuilder(
+        stream: widget.audioWaveRecordController.audioFFT?.stream ?? null,
+        builder: (context, snapshot) {
+          if (snapshot.data == null) return Container();
+
+          final List<double> buffer = snapshot.data;
+
+          return ListView.builder(
             padding: EdgeInsets.all(0),
             shrinkWrap: true,
-            itemCount: widget.audioWaveRecordController.animatedBars.length,
+            itemCount: buffer.length,
             scrollDirection: Axis.horizontal,
             itemBuilder: (BuildContext _, int index) {
-              final double bar =
-                  widget.audioWaveRecordController.animatedBars[index];
+              final double bar = buffer[index] * 100;
 
               return Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -105,5 +109,6 @@ class _AnimatedBarState extends State<_AnimatedBar> {
               );
             },
           );
+        });
   }
 }

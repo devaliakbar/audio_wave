@@ -1,4 +1,4 @@
-class AudioWave {
+class AudioWaveGenerator {
   static const int BAR_LENGTH = 100;
   List<double> currentBuffer = [];
 
