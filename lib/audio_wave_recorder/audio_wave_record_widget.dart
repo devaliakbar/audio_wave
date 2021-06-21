@@ -1,11 +1,10 @@
 import 'package:audio_wave/audio_wave_recorder/audio_wave_record_controller.dart';
 import 'package:flutter/material.dart';
 
-class AudioWaveRecorder extends StatelessWidget {
-  AudioWaveRecorder({
+class AudioWaveRecordWidget extends StatelessWidget {
+  AudioWaveRecordWidget({
     @required this.audioWaveRecordController,
     this.height,
-    this.inActiveColor = const Color(0xFF6E6E7A),
     this.activeColor = const Color(0xFF81B3C1),
   });
 
@@ -13,9 +12,6 @@ class AudioWaveRecorder extends StatelessWidget {
 
   ///[height] is the height of the container
   final double height;
-
-  /// [inActiveColor] is the color of the inActive bar
-  final Color inActiveColor;
 
   /// [activeColor] is the color of the active bar
   final Color activeColor;
@@ -38,48 +34,8 @@ class AudioWaveRecorder extends StatelessWidget {
     return Container(
       height: _containerHeight,
       width: 54 * _blockSizeHorizontal,
-      child: _AnimatedBar(
-          audioWaveRecordController: audioWaveRecordController,
-          spacing: _spacing,
-          containerHeight: _containerHeight,
-          barWidth: _barWidth,
-          activeColor: activeColor),
-    );
-  }
-}
-
-class _AnimatedBar extends StatefulWidget {
-  final AudioWaveRecordController audioWaveRecordController;
-  final double spacing;
-  final double containerHeight;
-  final double barWidth;
-  final Color activeColor;
-
-  _AnimatedBar(
-      {@required this.audioWaveRecordController,
-      @required this.spacing,
-      @required this.containerHeight,
-      @required this.barWidth,
-      @required this.activeColor});
-
-  @override
-  _AnimatedBarState createState() => _AnimatedBarState();
-}
-
-class _AnimatedBarState extends State<_AnimatedBar> {
-  @override
-  void initState() {
-    super.initState();
-
-    widget.audioWaveRecordController.addCallback(() {
-      setState(() {});
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder(
-        stream: widget.audioWaveRecordController.audioFFT?.stream ?? null,
+      child: StreamBuilder(
+        stream: audioWaveRecordController.audioFFT?.stream ?? null,
         builder: (context, snapshot) {
           if (snapshot.data == null) return Container();
 
@@ -97,18 +53,20 @@ class _AnimatedBarState extends State<_AnimatedBar> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    margin: EdgeInsets.only(right: widget.spacing),
-                    height: bar * widget.containerHeight / 100,
-                    width: widget.barWidth,
+                    margin: EdgeInsets.only(right: _spacing),
+                    height: bar * _containerHeight / 100,
+                    width: _barWidth,
                     decoration: BoxDecoration(
-                      color: widget.activeColor,
-                      borderRadius: BorderRadius.circular(widget.barWidth),
+                      color: activeColor,
+                      borderRadius: BorderRadius.circular(_barWidth),
                     ),
                   )
                 ],
               );
             },
           );
-        });
+        },
+      ),
+    );
   }
 }

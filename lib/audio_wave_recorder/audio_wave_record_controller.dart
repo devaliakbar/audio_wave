@@ -17,7 +17,7 @@ class AudioWaveRecordController {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   final OnRecordComplete onRecordComplete;
-  RecordingStatus _currentStatus = RecordingStatus.Unset;
+  RecordingStatus currentStatus = RecordingStatus.Unset;
 
   String errorMsg;
 
@@ -37,16 +37,16 @@ class AudioWaveRecordController {
     await _recorder.start();
 
     _current = await _recorder.current();
-    _currentStatus = _current.status;
+    currentStatus = _current.status;
 
     const tick = const Duration(milliseconds: 50);
     new Timer.periodic(tick, (Timer t) async {
-      if (_currentStatus != RecordingStatus.Recording) {
+      if (currentStatus != RecordingStatus.Recording) {
         t.cancel();
       }
 
       _current = await _recorder.current();
-      _currentStatus = _current.status;
+      currentStatus = _current.status;
       _addToWaves(_current.metering.averagePower);
     });
 
@@ -54,7 +54,8 @@ class AudioWaveRecordController {
   }
 
   void stopRecord() async {
-    final Recording result = await _recorder.stop();
+    _current = await _recorder.stop();
+    currentStatus = _current.status;
 
     await audioFFT?.close();
     audioFFT = null;
@@ -68,12 +69,10 @@ class AudioWaveRecordController {
       return;
     }
 
-    io.File file = _localFileSystem.file(result.path);
+    io.File file = _localFileSystem.file(_current.path);
 
-    onRecordComplete(file, waves, result.duration);
+    onRecordComplete(file, waves, _current.duration);
 
-    _current = result;
-    _currentStatus = _current.status;
     _init();
   }
 
@@ -96,6 +95,7 @@ class AudioWaveRecordController {
   final List<Function> _statusChangeCallBack = [];
 
   void _init() async {
+    errorMsg = null;
     if (await FlutterAudioRecorder.hasPermissions) {
       String customPath = '/temp_voices';
       io.Directory appDocDirectory;
@@ -116,10 +116,12 @@ class AudioWaveRecordController {
       Recording current = await _recorder.current();
 
       _current = current;
-      _currentStatus = current.status;
+      currentStatus = current.status;
     } else {
       errorMsg = "You must accept permissions";
     }
+
+    _notifyChange();
   }
 
   void _addToWaves(double wave) {
