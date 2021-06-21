@@ -45,6 +45,7 @@ class AudioWaveController {
       _audioPlayer.resume();
       _notifyChanges();
     }
+    _setUpBarAnimation();
   }
 
   //PAUSE AUDIO
@@ -54,15 +55,19 @@ class AudioWaveController {
       _audioPlayer.pause();
       _notifyChanges();
     }
+    _timerForBarAnimation.cancel();
   }
 
-  void dispose() {
+  void dispose() async {
     _audioPlayer.dispose();
     audioWaves = null;
     audioDuration = null;
+    _timerForBarAnimation?.cancel();
+    _timerForBarAnimation = null;
     _indexForBarAnimation = 0;
-    _triggerDurationForBarAnimation = [];
     audioWaveStatus = AudioWaveStatus.initializing;
+    await barAnimationStream?.close();
+    barAnimationStream = null;
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -73,27 +78,12 @@ class AudioWaveController {
   final AudioPlayer _audioPlayer = AudioPlayer();
 
   int _indexForBarAnimation = 0;
-  List<int> _triggerDurationForBarAnimation = [];
+
+  Timer _timerForBarAnimation;
+
   //INITIALIZING
   Future<void> _init() async {
-    int durationInMiliiSecond = audioDuration.inMilliseconds;
-    int durationForMultiply = durationInMiliiSecond ~/ audioWaves.length;
-
     barAnimationStream = StreamController<int>();
-
-    for (int i = 1; i < audioWaves.length; i++) {
-      _triggerDurationForBarAnimation.add(durationForMultiply * i);
-    }
-
-    _triggerDurationForBarAnimation.add(audioDuration.inMilliseconds);
-
-    _audioPlayer.onDurationChanged.listen((Duration d) {
-      int changedDurationInMilliSecond = d.inMilliseconds;
-      if (changedDurationInMilliSecond >=
-          _triggerDurationForBarAnimation[_indexForBarAnimation]) {
-        barAnimationStream.add(++_indexForBarAnimation);
-      }
-    });
 
     _audioPlayer.onPlayerCompletion.listen((event) {
       _onStopAudio();
@@ -108,11 +98,22 @@ class AudioWaveController {
   void _onStopAudio() {
     audioWaveStatus = AudioWaveStatus.initialized;
     _indexForBarAnimation = 0;
+    _timerForBarAnimation.cancel();
     _notifyChanges();
   }
 
   //NOTIFYING LISTENERS
   void _notifyChanges() {
     for (Function listener in _listeners) listener();
+  }
+
+  //SETUP BAR ANIMATION
+  void _setUpBarAnimation() {
+    int durationInMiliiSecond = audioDuration.inMilliseconds;
+    int durationForMultiply = durationInMiliiSecond ~/ audioWaves.length;
+
+    _timerForBarAnimation = Timer.periodic(
+        Duration(milliseconds: durationForMultiply),
+        (Timer t) => barAnimationStream.add(++_indexForBarAnimation));
   }
 }
