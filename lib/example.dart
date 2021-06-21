@@ -75,6 +75,12 @@ class _ExampleState extends State<Example> {
                           }
                         : null,
                     onLongPressEnd: (LongPressEndDetails details) {
+                      if (_audioWaveRecordController.currentStatus !=
+                          RecordingStatus.Recording) {
+                        while (_audioWaveRecordController.currentStatus !=
+                            RecordingStatus.Recording) {}
+                      }
+
                       _audioWaveRecordController.stopRecord();
                     },
                     child: ClipOval(
