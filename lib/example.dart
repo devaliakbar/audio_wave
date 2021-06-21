@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:audio_wave/audio_wave/audio_wave_recorder/audio_wave_record_controller.dart';
 import 'package:audio_wave/audio_wave/audio_wave_recorder/audio_wave_record_widget.dart';
 import 'package:audio_wave/audio_wave/models/audio_wave_model.dart';
+import 'package:audio_wave/example_audio_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
 
@@ -51,12 +52,16 @@ class _ExampleState extends State<Example> {
         child: Column(
           children: [
             Expanded(
-              child: ListView.builder(
+              child: ListView.separated(
                 controller: _scrollController,
                 itemCount: audios.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return ListTile(
-                    title: Text(audios[index].duration.toString()),
+                itemBuilder: (BuildContext _, int index) =>
+                    ExampleAudioItem(audioWaveModel: audios[index]),
+                separatorBuilder: (BuildContext _, int __) {
+                  return Container(
+                    margin: EdgeInsets.symmetric(vertical: 15),
+                    height: 0.5,
+                    color: Colors.grey,
                   );
                 },
               ),
