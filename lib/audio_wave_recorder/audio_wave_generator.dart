@@ -1,38 +1,55 @@
+import 'package:flutter/material.dart';
+
+typedef OnGenerateWave(List<double> waves);
+
 class AudioWaveGenerator {
-  static const int BAR_LENGTH = 100;
+  static const int _BAR_LENGTH = 100;
+
+  final OnGenerateWave onGenerateWave;
+  AudioWaveGenerator({@required this.onGenerateWave});
+
   List<double> currentBuffer = [];
 
   void addToStream(double data) {
-    currentBuffer.add(data);
+    currentBuffer.add(_reMapWave(data));
 
     if (wavesInDimension.length == 0) {
-      if (currentBuffer.length == BAR_LENGTH) {
-        addToMainStream(0, currentBuffer).then((_) =>
-            notifyListener(wavesInDimension[wavesInDimension.length - 1]));
+      if (currentBuffer.length == _BAR_LENGTH) {
+        addToMainStream(0, currentBuffer);
+        _notifyListener(wavesInDimension[wavesInDimension.length - 1]);
         currentBuffer = [];
         return;
       }
 
-      notifyListener(currentBuffer);
+      _notifyListener(currentBuffer);
       return;
     }
 
-    if (currentBuffer.length == BAR_LENGTH) {
+    if (currentBuffer.length == _BAR_LENGTH) {
       addToMainStream(0, currentBuffer);
       currentBuffer = [];
       return;
     }
 
     var notifyWaves =
-        new List.from(wavesInDimension[wavesInDimension.length - 1])
+        new List<double>.from(wavesInDimension[wavesInDimension.length - 1])
           ..addAll(currentBuffer);
 
-    notifyListener(notifyWaves);
+    _notifyListener(notifyWaves);
   }
 
-  void notifyListener(List<double> currentBuffer) {
-    //TODO
-    print("NOTIFYY");
+  List<double> getFinalWave() {
+    if (wavesInDimension.length > 0) {
+      return wavesInDimension[wavesInDimension.length - 1];
+    }
+    if (currentBuffer.length > 0) {
+      return currentBuffer;
+    }
+    return null;
+  }
+
+  void _notifyListener(List<double> currentBuffer) {
+    onGenerateWave(currentBuffer);
   }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -42,7 +59,7 @@ class AudioWaveGenerator {
   List<int> dimensionIndexes = [];
   List<List<double>> wavesInDimension = [];
 
-  Future<void> addToMainStream(int index, List<double> data) async {
+  void addToMainStream(int index, List<double> data) {
     //CHECKING INDEX NOT EXIST
     if (index >= (dimensionIndexes.length - 1)) {
       wavesInDimension.add(data);
@@ -52,20 +69,20 @@ class AudioWaveGenerator {
 
     int divideValue = dimensionIndexes[index] + 1;
 
-    if (divideValue > BAR_LENGTH) {
-      await addToMainStream(index + 1, wavesInDimension[index]);
+    if (divideValue > _BAR_LENGTH) {
+      addToMainStream(index + 1, wavesInDimension[index]);
       dimensionIndexes[index] = 1;
       wavesInDimension[index] = data;
       return;
     }
 
-    int arraySizeForNewData = BAR_LENGTH ~/ divideValue;
+    int arraySizeForNewData = _BAR_LENGTH ~/ divideValue;
 
     List<double> newDataAfterReduced =
         reduceArraySize(arraySizeForNewData, data);
 
     List<double> previousDataAfterReduced = reduceArraySize(
-        BAR_LENGTH - arraySizeForNewData, wavesInDimension[index]);
+        _BAR_LENGTH - arraySizeForNewData, wavesInDimension[index]);
 
     previousDataAfterReduced.addAll(newDataAfterReduced);
 
@@ -77,7 +94,7 @@ class AudioWaveGenerator {
     List<double> reducedArray = [];
 
     int index = 0;
-    while (index < BAR_LENGTH) {
+    while (index < _BAR_LENGTH) {
       if (reducedArray.length == reduceSize) {
         break;
       }
@@ -121,5 +138,19 @@ class AudioWaveGenerator {
     }
 
     return reducedArray;
+  }
+
+  double _reMapWave(double x) {
+    double inMin = 0;
+    double inMax = 15;
+    double outMin = 0.1;
+    double outMax = 1.0;
+
+    x = x > -10 ? -10 : x;
+    x = x < -25 ? -25 : x;
+
+    x += 25;
+
+    return (((outMax - outMin) * (x - inMin)) / (inMax - inMin)) + outMin;
   }
 }

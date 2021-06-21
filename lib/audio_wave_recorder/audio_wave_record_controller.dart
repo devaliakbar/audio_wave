@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:audio_wave/audio_wave_recorder/audio_wave_generator.dart';
 import 'package:file/local.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
@@ -7,7 +8,8 @@ import 'dart:io' as io;
 
 import 'package:path_provider/path_provider.dart';
 
-typedef OnRecordComplete(io.File audioFile);
+typedef OnRecordComplete(
+    io.File audioFile, List<double> waves, Duration duration);
 
 class AudioWaveRecordController {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -15,6 +17,8 @@ class AudioWaveRecordController {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   final OnRecordComplete onRecordComplete;
+  RecordingStatus _currentStatus = RecordingStatus.Unset;
+
   String errorMsg;
 
   StreamController<List<double>> audioFFT;
@@ -23,36 +27,17 @@ class AudioWaveRecordController {
     _init();
   }
 
-  List<double> waves = [];
-
-  double remap(double x,
-      {double inMin = 0,
-      double inMax = 15,
-      double outMin = 0.1,
-      double outMax = 1.0}) {
-    x = x > -10 ? -10 : x;
-    x = x < -25 ? -25 : x;
-
-    x += 25;
-
-    return (((outMax - outMin) * (x - inMin)) / (inMax - inMin)) + outMin;
-  }
-
-  void addToWave(double wave) {
-    if (audioFFT != null) {
-      if (!audioFFT.isClosed) {
-        waves.add(remap(wave));
-      }
-      audioFFT.add(waves);
-    }
-  }
-
   void startRecord() async {
     audioFFT = StreamController<List<double>>();
+    _audioWaveGenerator =
+        AudioWaveGenerator(onGenerateWave: (List<double> waves) {
+      audioFFT.add(waves);
+    });
 
     await _recorder.start();
 
     _current = await _recorder.current();
+    _currentStatus = _current.status;
 
     const tick = const Duration(milliseconds: 50);
     new Timer.periodic(tick, (Timer t) async {
@@ -62,18 +47,30 @@ class AudioWaveRecordController {
 
       _current = await _recorder.current();
       _currentStatus = _current.status;
-      addToWave(_current.metering.averagePower);
+      _addToWaves(_current.metering.averagePower);
     });
 
     _notifyChange();
   }
 
   void stopRecord() async {
-    var result = await _recorder.stop();
+    final Recording result = await _recorder.stop();
+
     await audioFFT?.close();
     audioFFT = null;
+
+    final List<double> waves = _audioWaveGenerator.getFinalWave();
+    _audioWaveGenerator = null;
+
+    if (waves == null) {
+      //TODO DELETE FILE
+      _init();
+      return;
+    }
+
     io.File file = _localFileSystem.file(result.path);
-    onRecordComplete(file);
+
+    onRecordComplete(file, waves, result.duration);
 
     _current = result;
     _currentStatus = _current.status;
@@ -84,19 +81,15 @@ class AudioWaveRecordController {
     _statusChangeCallBack.add(callBack);
   }
 
-  void _notifyChange() {
-    for (Function callBack in _statusChangeCallBack) {
-      callBack();
-    }
-  }
-
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   ///************************************************PRIVATE**************************************************************
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   FlutterAudioRecorder _recorder;
+
   Recording _current;
-  RecordingStatus _currentStatus = RecordingStatus.Unset;
+
+  AudioWaveGenerator _audioWaveGenerator;
 
   final LocalFileSystem _localFileSystem = LocalFileSystem();
 
@@ -126,6 +119,22 @@ class AudioWaveRecordController {
       _currentStatus = current.status;
     } else {
       errorMsg = "You must accept permissions";
+    }
+  }
+
+  void _addToWaves(double wave) {
+    if (_audioWaveGenerator != null) {
+      if (audioFFT != null) {
+        if (!audioFFT.isClosed) {
+          _audioWaveGenerator.addToStream(wave);
+        }
+      }
+    }
+  }
+
+  void _notifyChange() {
+    for (Function callBack in _statusChangeCallBack) {
+      callBack();
     }
   }
 }

@@ -6,7 +6,11 @@ import 'package:flutter/material.dart';
 
 class AudioWaveRecorderExample extends StatelessWidget {
   final AudioWaveRecordController _audioWaveRecordController =
-      AudioWaveRecordController(onRecordComplete: (File audioFile) {});
+      AudioWaveRecordController(onRecordComplete:
+          (File audioFile, List<double> waves, Duration duration) {
+    print("Complete");
+    print(waves);
+  });
 
   @override
   Widget build(BuildContext context) {
