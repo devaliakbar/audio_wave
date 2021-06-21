@@ -20,6 +20,8 @@ class AudioWaveController {
   AudioWaveStatus audioWaveStatus = AudioWaveStatus.initializing;
   File audioFile;
 
+  StreamController<int> barAnimationStream;
+
   AudioWaveController({@required AudioWaveModel audioWaveModel}) {
     audioWaves = audioWaveModel.waves;
     audioDuration = audioWaveModel.duration;
@@ -54,14 +56,6 @@ class AudioWaveController {
     }
   }
 
-  //ON STOP AUDIO
-  void onStopAudio() {
-    audioWaveStatus = AudioWaveStatus.initialized;
-    _audioPlayer.stop();
-    _indexForBarAnimation = 0;
-    _notifyChanges();
-  }
-
   void dispose() {
     _audioPlayer.dispose();
     audioWaves = null;
@@ -85,6 +79,8 @@ class AudioWaveController {
     int durationInMiliiSecond = audioDuration.inMilliseconds;
     int durationForMultiply = durationInMiliiSecond ~/ audioWaves.length;
 
+    barAnimationStream = StreamController<int>();
+
     for (int i = 1; i < audioWaves.length; i++) {
       _triggerDurationForBarAnimation.add(durationForMultiply * i);
     }
@@ -95,12 +91,23 @@ class AudioWaveController {
       int changedDurationInMilliSecond = d.inMilliseconds;
       if (changedDurationInMilliSecond >=
           _triggerDurationForBarAnimation[_indexForBarAnimation]) {
-        //TODO ++_indexForBarAnimation
+        barAnimationStream.add(++_indexForBarAnimation);
       }
+    });
+
+    _audioPlayer.onPlayerCompletion.listen((event) {
+      _onStopAudio();
     });
 
     audioWaveStatus = AudioWaveStatus.initialized;
 
+    _notifyChanges();
+  }
+
+  //ON STOP AUDIO
+  void _onStopAudio() {
+    audioWaveStatus = AudioWaveStatus.initialized;
+    _indexForBarAnimation = 0;
     _notifyChanges();
   }
 

@@ -48,20 +48,28 @@ class AudioWave extends StatelessWidget {
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                margin: EdgeInsets.only(right: _spacing),
-                height: bar * _containerHeight / 100,
-                width: _barWidth,
-                decoration: BoxDecoration(
-                  color:
-                      //TODO
-                      // index <= _barAnimation.value
-                      //     ? activeBarColor
-                      //     :
-                      inActiveBarColor,
-                  borderRadius: BorderRadius.circular(_barWidth),
-                ),
-              )
+              StreamBuilder(
+                  stream:
+                      audioWaveController.barAnimationStream?.stream ?? null,
+                  builder: (context, snapshot) {
+                    bool isPlayed = false;
+                    if (snapshot.data == null) {
+                      final indexUntilPlayed = snapshot.data;
+                      if (index <= indexUntilPlayed) {
+                        isPlayed = true;
+                      }
+                    }
+
+                    return Container(
+                      margin: EdgeInsets.only(right: _spacing),
+                      height: bar * _containerHeight / 100,
+                      width: _barWidth,
+                      decoration: BoxDecoration(
+                        color: isPlayed ? activeBarColor : inActiveBarColor,
+                        borderRadius: BorderRadius.circular(_barWidth),
+                      ),
+                    );
+                  })
             ],
           );
         },

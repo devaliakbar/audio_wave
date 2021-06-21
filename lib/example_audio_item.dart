@@ -40,7 +40,10 @@ class _ExampleAudioItemState extends State<ExampleAudioItem> {
                     _audioWaveController.play();
                   }),
               Expanded(
-                child: AudioWave(audioWaveController: _audioWaveController),
+                child: _audioWaveController.audioWaveStatus ==
+                        AudioWaveStatus.initialized
+                    ? AudioWave(audioWaveController: _audioWaveController)
+                    : Container(),
               )
             ],
           ),
