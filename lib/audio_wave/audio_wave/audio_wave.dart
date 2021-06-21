@@ -35,45 +35,49 @@ class AudioWave extends StatelessWidget {
 
     final double _spacing = 0.3 * _blockSizeHorizontal;
 
-    return Container(
-      height: _containerHeight,
-      child: ListView.builder(
-        shrinkWrap: true,
-        padding: EdgeInsets.all(0),
-        itemCount: audioWaveController.audioWaves.length,
-        scrollDirection: Axis.horizontal,
-        itemBuilder: (BuildContext _, int index) {
-          double bar = audioWaveController.audioWaves[index] * 100;
+    return StreamBuilder(
+      stream: audioWaveController.barAnimationStream?.stream ?? null,
+      builder: (context, snapshot) {
+        return Container(
+          height: _containerHeight,
+          child: ListView.builder(
+            shrinkWrap: true,
+            padding: EdgeInsets.all(0),
+            itemCount: audioWaveController.audioWaves.length,
+            scrollDirection: Axis.horizontal,
+            itemBuilder: (BuildContext _, int index) {
+              bool isPlayed = false;
+              if (snapshot.data != null &&
+                  (audioWaveController.audioWaveStatus ==
+                          AudioWaveStatus.play ||
+                      audioWaveController.audioWaveStatus ==
+                          AudioWaveStatus.pause)) {
+                final int indexUntilPlayed = snapshot.data;
+                if (index <= indexUntilPlayed) {
+                  isPlayed = true;
+                }
+              }
 
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              StreamBuilder(
-                  stream:
-                      audioWaveController.barAnimationStream?.stream ?? null,
-                  builder: (context, snapshot) {
-                    bool isPlayed = false;
-                    if (snapshot.data == null) {
-                      final indexUntilPlayed = snapshot.data;
-                      if (index <= indexUntilPlayed) {
-                        isPlayed = true;
-                      }
-                    }
+              double bar = audioWaveController.audioWaves[index] * 100;
 
-                    return Container(
-                      margin: EdgeInsets.only(right: _spacing),
-                      height: bar * _containerHeight / 100,
-                      width: _barWidth,
-                      decoration: BoxDecoration(
-                        color: isPlayed ? activeBarColor : inActiveBarColor,
-                        borderRadius: BorderRadius.circular(_barWidth),
-                      ),
-                    );
-                  })
-            ],
-          );
-        },
-      ),
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    margin: EdgeInsets.only(right: _spacing),
+                    height: bar * _containerHeight / 100,
+                    width: _barWidth,
+                    decoration: BoxDecoration(
+                      color: isPlayed ? activeBarColor : inActiveBarColor,
+                      borderRadius: BorderRadius.circular(_barWidth),
+                    ),
+                  )
+                ],
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }
