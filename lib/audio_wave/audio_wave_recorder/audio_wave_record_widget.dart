@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:audio_wave/audio_wave_recorder/audio_wave_record_controller.dart';
-import 'package:audio_wave/models/audio_wave_generate_model.dart';
+import 'package:audio_wave/audio_wave/audio_wave_recorder/audio_wave_record_controller.dart';
+import 'package:audio_wave/audio_wave/models/audio_wave_generate_model.dart';
 import 'package:flutter/material.dart';
 
 class AudioWaveRecordWidget extends StatelessWidget {

@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:audio_wave/audio_wave_recorder/audio_wave_generator.dart';
-import 'package:audio_wave/models/audio_wave_generate_model.dart';
+import 'package:audio_wave/audio_wave/audio_wave_recorder/audio_wave_generator.dart';
+import 'package:audio_wave/audio_wave/models/audio_wave_generate_model.dart';
 import 'package:file/local.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';

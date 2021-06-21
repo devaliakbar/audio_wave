@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:audio_wave/audio_wave_recorder/audio_wave_record_controller.dart';
-import 'package:audio_wave/audio_wave_recorder/audio_wave_record_widget.dart';
-import 'package:audio_wave/models/audio_wave_model.dart';
+import 'package:audio_wave/audio_wave/audio_wave_recorder/audio_wave_record_controller.dart';
+import 'package:audio_wave/audio_wave/audio_wave_recorder/audio_wave_record_widget.dart';
+import 'package:audio_wave/audio_wave/models/audio_wave_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
 

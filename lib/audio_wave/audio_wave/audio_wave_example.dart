@@ -1,5 +1,5 @@
-import 'package:audio_wave/audio_wave/audio_wave.dart';
-import 'package:audio_wave/audio_wave/audio_wave_controller.dart';
+import 'package:audio_wave/audio_wave/audio_wave/audio_wave.dart';
+import 'package:audio_wave/audio_wave/audio_wave/audio_wave_controller.dart';
 import 'package:flutter/material.dart';
 
 class AudioWaveExample extends StatefulWidget {
