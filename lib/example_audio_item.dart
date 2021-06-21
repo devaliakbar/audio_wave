@@ -1,10 +1,27 @@
+import 'package:audio_wave/audio_wave/audio_wave/audio_wave.dart';
+import 'package:audio_wave/audio_wave/audio_wave/audio_wave_controller.dart';
 import 'package:audio_wave/audio_wave/models/audio_wave_model.dart';
 import 'package:flutter/material.dart';
 
-class ExampleAudioItem extends StatelessWidget {
+class ExampleAudioItem extends StatefulWidget {
   final AudioWaveModel audioWaveModel;
 
   ExampleAudioItem({@required this.audioWaveModel});
+
+  @override
+  _ExampleAudioItemState createState() => _ExampleAudioItemState();
+}
+
+class _ExampleAudioItemState extends State<ExampleAudioItem> {
+  AudioWaveController _audioWaveController;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _audioWaveController =
+        AudioWaveController(audioWaveModel: widget.audioWaveModel);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,16 +36,14 @@ class ExampleAudioItem extends StatelessWidget {
                 size: 25,
               ),
               Expanded(
-                child: Container(
-                  color: Colors.grey.withOpacity(0.1),
-                ),
+                child: AudioWave(audioWaveController: _audioWaveController),
               )
             ],
           ),
           SizedBox(
             height: 10,
           ),
-          Text(audioWaveModel.duration.toString())
+          Text(widget.audioWaveModel.duration.toString())
         ],
       ),
     );
