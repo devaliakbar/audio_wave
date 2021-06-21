@@ -1,10 +1,48 @@
 class AudioWave {
   static const int BAR_LENGTH = 100;
+  List<double> currentBuffer = [];
+
+  void addToStream(double data) {
+    currentBuffer.add(data);
+
+    if (wavesInDimension.length == 0) {
+      if (currentBuffer.length == BAR_LENGTH) {
+        addToMainStream(0, currentBuffer).then((_) =>
+            notifyListener(wavesInDimension[wavesInDimension.length - 1]));
+        currentBuffer = [];
+        return;
+      }
+
+      notifyListener(currentBuffer);
+      return;
+    }
+
+    if (currentBuffer.length == BAR_LENGTH) {
+      addToMainStream(0, currentBuffer);
+      currentBuffer = [];
+      return;
+    }
+
+    var notifyWaves =
+        new List.from(wavesInDimension[wavesInDimension.length - 1])
+          ..addAll(currentBuffer);
+
+    notifyListener(notifyWaves);
+  }
+
+  void notifyListener(List<double> currentBuffer) {
+    //TODO
+    print("NOTIFYY");
+  }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////DARK MATTER/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   List<int> dimensionIndexes = [];
   List<List<double>> wavesInDimension = [];
 
-  void addStream(int index, List<double> data) {
+  Future<void> addToMainStream(int index, List<double> data) async {
     //CHECKING INDEX NOT EXIST
     if (index >= (dimensionIndexes.length - 1)) {
       wavesInDimension.add(data);
@@ -15,7 +53,7 @@ class AudioWave {
     int divideValue = dimensionIndexes[index] + 1;
 
     if (divideValue > BAR_LENGTH) {
-      addStream(index + 1, wavesInDimension[index]);
+      await addToMainStream(index + 1, wavesInDimension[index]);
       dimensionIndexes[index] = 1;
       wavesInDimension[index] = data;
       return;
