@@ -28,6 +28,12 @@ class _ExampleAudioItemState extends State<ExampleAudioItem> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    _audioWaveController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       child: Column(
