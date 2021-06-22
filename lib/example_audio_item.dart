@@ -41,26 +41,31 @@ class _ExampleAudioItemState extends State<ExampleAudioItem> {
         children: [
           Row(
             children: [
-              IconButton(
-                  icon: Icon(
-                    (_audioWaveController.audioWaveStatus ==
+              _audioWaveController.audioWaveStatus ==
+                      AudioWaveStatus.initializing
+                  ? Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : IconButton(
+                      icon: Icon(
+                        (_audioWaveController.audioWaveStatus ==
+                                    AudioWaveStatus.initialized ||
+                                _audioWaveController.audioWaveStatus ==
+                                    AudioWaveStatus.pause)
+                            ? Icons.play_arrow
+                            : Icons.pause,
+                        size: 25,
+                      ),
+                      onPressed: () {
+                        if (_audioWaveController.audioWaveStatus ==
                                 AudioWaveStatus.initialized ||
                             _audioWaveController.audioWaveStatus ==
-                                AudioWaveStatus.pause)
-                        ? Icons.play_arrow
-                        : Icons.pause,
-                    size: 25,
-                  ),
-                  onPressed: () {
-                    if (_audioWaveController.audioWaveStatus ==
-                            AudioWaveStatus.initialized ||
-                        _audioWaveController.audioWaveStatus ==
-                            AudioWaveStatus.pause) {
-                      _audioWaveController.play();
-                    } else {
-                      _audioWaveController.pause();
-                    }
-                  }),
+                                AudioWaveStatus.pause) {
+                          _audioWaveController.play();
+                        } else {
+                          _audioWaveController.pause();
+                        }
+                      }),
               Expanded(
                 child: AudioWave(audioWaveController: _audioWaveController),
               )
