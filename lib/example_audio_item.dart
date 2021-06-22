@@ -1,5 +1,5 @@
-import 'package:audio_wave/audio_wave/audio_wave/audio_wave.dart';
-import 'package:audio_wave/audio_wave/audio_wave/audio_wave_controller.dart';
+import 'package:audio_wave/audio_wave/audio_wave_player/audio_wave_player_controller.dart';
+import 'package:audio_wave/audio_wave/audio_wave_player/audio_wave_player_widget.dart';
 import 'package:audio_wave/audio_wave/models/audio_wave_model.dart';
 import 'package:flutter/material.dart';
 
@@ -13,16 +13,16 @@ class ExampleAudioItem extends StatefulWidget {
 }
 
 class _ExampleAudioItemState extends State<ExampleAudioItem> {
-  AudioWaveController _audioWaveController;
+  AudioWavePlayerController _audioWavePlayerController;
 
   @override
   void initState() {
     super.initState();
 
-    _audioWaveController =
-        AudioWaveController(audioWaveModel: widget.audioWaveModel);
+    _audioWavePlayerController =
+        AudioWavePlayerController(audioWaveModel: widget.audioWaveModel);
 
-    _audioWaveController.addListener(() {
+    _audioWavePlayerController.addListener(() {
       setState(() {});
     });
   }
@@ -30,7 +30,7 @@ class _ExampleAudioItemState extends State<ExampleAudioItem> {
   @override
   void dispose() {
     super.dispose();
-    _audioWaveController.dispose();
+    _audioWavePlayerController.dispose();
   }
 
   @override
@@ -41,33 +41,34 @@ class _ExampleAudioItemState extends State<ExampleAudioItem> {
         children: [
           Row(
             children: [
-              _audioWaveController.audioWaveStatus ==
+              _audioWavePlayerController.audioWaveStatus ==
                       AudioWaveStatus.initializing
                   ? Center(
                       child: CircularProgressIndicator(),
                     )
                   : IconButton(
                       icon: Icon(
-                        (_audioWaveController.audioWaveStatus ==
+                        (_audioWavePlayerController.audioWaveStatus ==
                                     AudioWaveStatus.initialized ||
-                                _audioWaveController.audioWaveStatus ==
+                                _audioWavePlayerController.audioWaveStatus ==
                                     AudioWaveStatus.pause)
                             ? Icons.play_arrow
                             : Icons.pause,
                         size: 25,
                       ),
                       onPressed: () {
-                        if (_audioWaveController.audioWaveStatus ==
+                        if (_audioWavePlayerController.audioWaveStatus ==
                                 AudioWaveStatus.initialized ||
-                            _audioWaveController.audioWaveStatus ==
+                            _audioWavePlayerController.audioWaveStatus ==
                                 AudioWaveStatus.pause) {
-                          _audioWaveController.play();
+                          _audioWavePlayerController.play();
                         } else {
-                          _audioWaveController.pause();
+                          _audioWavePlayerController.pause();
                         }
                       }),
               Expanded(
-                child: AudioWave(audioWaveController: _audioWaveController),
+                child: AudioWavePlayerWidget(
+                    audioWavePlayerController: _audioWavePlayerController),
               )
             ],
           ),

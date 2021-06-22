@@ -1,15 +1,15 @@
-import 'package:audio_wave/audio_wave/audio_wave/audio_wave_controller.dart';
+import 'package:audio_wave/audio_wave/audio_wave_player/audio_wave_player_controller.dart';
 import 'package:flutter/material.dart';
 
-class AudioWave extends StatelessWidget {
-  AudioWave({
-    @required this.audioWaveController,
+class AudioWavePlayerWidget extends StatelessWidget {
+  AudioWavePlayerWidget({
+    @required this.audioWavePlayerController,
     this.height,
     this.activeBarColor = const Color(0xFF81B3C1),
     this.inActiveBarColor = Colors.black54,
   });
 
-  final AudioWaveController audioWaveController;
+  final AudioWavePlayerController audioWavePlayerController;
 
   ///[height] is the height of the container
   final double height;
@@ -36,21 +36,21 @@ class AudioWave extends StatelessWidget {
     final double _spacing = 0.3 * _blockSizeHorizontal;
 
     return StreamBuilder(
-      stream: audioWaveController.barAnimationStream?.stream ?? null,
+      stream: audioWavePlayerController.barAnimationStream?.stream ?? null,
       builder: (context, snapshot) {
         return Container(
           height: _containerHeight,
           child: ListView.builder(
             shrinkWrap: true,
             padding: EdgeInsets.all(0),
-            itemCount: audioWaveController.audioWaves.length,
+            itemCount: audioWavePlayerController.audioWaves.length,
             scrollDirection: Axis.horizontal,
             itemBuilder: (BuildContext _, int index) {
               bool isPlayed = false;
               if (snapshot.data != null &&
-                  (audioWaveController.audioWaveStatus ==
+                  (audioWavePlayerController.audioWaveStatus ==
                           AudioWaveStatus.play ||
-                      audioWaveController.audioWaveStatus ==
+                      audioWavePlayerController.audioWaveStatus ==
                           AudioWaveStatus.pause)) {
                 final int indexUntilPlayed = snapshot.data;
                 if (index <= indexUntilPlayed) {
@@ -58,7 +58,7 @@ class AudioWave extends StatelessWidget {
                 }
               }
 
-              double bar = audioWaveController.audioWaves[index] * 100;
+              double bar = audioWavePlayerController.audioWaves[index] * 100;
 
               return Column(
                 mainAxisAlignment: MainAxisAlignment.center,

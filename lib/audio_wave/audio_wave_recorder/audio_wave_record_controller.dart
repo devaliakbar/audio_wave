@@ -66,7 +66,10 @@ class AudioWaveRecordController {
     _audioWaveGenerator = null;
 
     if (waves == null) {
-      //TODO DELETE FILE
+      try {
+        await _localFileSystem.file(_current.path).delete();
+      } catch (_) {}
+
       _init();
       return;
     }

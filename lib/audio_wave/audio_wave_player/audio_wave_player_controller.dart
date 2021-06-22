@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 
 enum AudioWaveStatus { initializing, initialized, play, pause }
 
-class AudioWaveController {
+class AudioWavePlayerController {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   ///************************************************PUBLIC***************************************************************
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -22,7 +22,7 @@ class AudioWaveController {
 
   StreamController<int> barAnimationStream;
 
-  AudioWaveController({@required AudioWaveModel audioWaveModel}) {
+  AudioWavePlayerController({@required AudioWaveModel audioWaveModel}) {
     audioWaves = audioWaveModel.waves;
     audioDuration = audioWaveModel.duration;
     audioFile = audioWaveModel.audio;
