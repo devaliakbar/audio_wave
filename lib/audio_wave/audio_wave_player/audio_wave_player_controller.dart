@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:audio_wave/audio_wave/models/audio_wave_model.dart';
-import 'package:audioplayers/audioplayers.dart';
+import 'package:just_audio/just_audio.dart';
 
 enum AudioWaveStatus { initializing, initialized, play, pause }
 
@@ -11,18 +11,18 @@ class AudioWavePlayerController {
   ///************************************************PUBLIC***************************************************************
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  List<double>? audioWaves;
+  late final List<double>? audioWaves;
 
-  Duration? audioDuration;
+  late final Duration? audioDuration;
+
+  late final File audioFile;
 
   AudioWaveStatus audioWaveStatus = AudioWaveStatus.initializing;
-  late File audioFile;
 
   StreamController<int>? barAnimationStream;
 
   AudioWavePlayerController({required AudioWaveModel audioWaveModel}) {
     audioWaves = audioWaveModel.waves;
-    audioDuration = audioWaveModel.duration;
     audioFile = audioWaveModel.audio;
     _init();
   }
@@ -33,35 +33,27 @@ class AudioWavePlayerController {
   }
 
   //PLAY AUDIO
-  void play() async {
-    if (audioWaveStatus == AudioWaveStatus.initialized) {
+  void play() {
+    if (audioWaveStatus == AudioWaveStatus.initialized ||
+        audioWaveStatus == AudioWaveStatus.pause) {
       audioWaveStatus = AudioWaveStatus.play;
-      await _audioPlayer.play(audioFile.path, isLocal: true);
-      _setUpBarAnimation();
       _notifyChanges();
-    } else if (audioWaveStatus == AudioWaveStatus.pause) {
-      audioWaveStatus = AudioWaveStatus.play;
-      await _audioPlayer.resume();
-      _setUpBarAnimation();
-      _notifyChanges();
+      _audioPlayer.play();
     }
   }
 
   //PAUSE AUDIO
   void pause() async {
     if (audioWaveStatus == AudioWaveStatus.play) {
-      audioWaveStatus = AudioWaveStatus.pause;
+      audioWaveStatus = AudioWaveStatus.initializing;
       await _audioPlayer.pause();
+      audioWaveStatus = AudioWaveStatus.pause;
       _notifyChanges();
     }
   }
 
   void dispose() async {
     _audioPlayer.dispose();
-    audioWaves = null;
-    audioDuration = null;
-
-    _indexForBarAnimation = 0;
     audioWaveStatus = AudioWaveStatus.initializing;
     await barAnimationStream?.close();
     barAnimationStream = null;
@@ -74,44 +66,45 @@ class AudioWavePlayerController {
   List<Function> _listeners = [];
   final AudioPlayer _audioPlayer = AudioPlayer();
 
-  int _indexForBarAnimation = 0;
-
   //INITIALIZING
   Future<void> _init() async {
+    audioDuration = await _audioPlayer.setFilePath(audioFile.path);
+
     barAnimationStream = StreamController<int>();
 
-    _audioPlayer.onPlayerCompletion.listen((event) {
-      _onStopAudio();
+    _audioPlayer.positionStream.listen((event) {
+      int currentDurationInMilliSeconds = event.inMilliseconds;
+
+      int percentage =
+          ((currentDurationInMilliSeconds / audioDuration!.inMilliseconds) *
+                  100)
+              .truncate();
+
+      print(percentage);
+
+      barAnimationStream!.add(percentage);
+    });
+
+    _audioPlayer.playerStateStream.listen((event) async {
+      if (event.processingState == ProcessingState.completed) {
+        audioWaveStatus = AudioWaveStatus.initializing;
+
+        await _audioPlayer.seek(Duration.zero);
+        await _audioPlayer.stop();
+
+        audioWaveStatus = AudioWaveStatus.initialized;
+
+        _notifyChanges();
+      }
     });
 
     audioWaveStatus = AudioWaveStatus.initialized;
 
-    _notifyChanges();
-  }
-
-  //ON STOP AUDIO
-  void _onStopAudio() {
-    audioWaveStatus = AudioWaveStatus.initialized;
-    _indexForBarAnimation = 0;
     _notifyChanges();
   }
 
   //NOTIFYING LISTENERS
   void _notifyChanges() {
     for (Function listener in _listeners) listener();
-  }
-
-  //SETUP BAR ANIMATION
-  void _setUpBarAnimation() {
-    int durationInMiliiSecond = audioDuration!.inMilliseconds;
-    int durationForMultiply = durationInMiliiSecond ~/ audioWaves!.length;
-
-    Timer.periodic(Duration(milliseconds: durationForMultiply), (Timer t) {
-      if (audioWaveStatus == AudioWaveStatus.play) {
-        barAnimationStream!.add(++_indexForBarAnimation);
-      } else {
-        t.cancel();
-      }
-    });
   }
 }
