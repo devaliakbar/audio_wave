@@ -3,8 +3,6 @@ import 'dart:io';
 
 import 'package:audio_wave/audio_wave/models/audio_wave_model.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 
 enum AudioWaveStatus { initializing, initialized, play, pause }
 
@@ -13,16 +11,16 @@ class AudioWavePlayerController {
   ///************************************************PUBLIC***************************************************************
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  List<double> audioWaves;
+  List<double>? audioWaves;
 
-  Duration audioDuration;
+  Duration? audioDuration;
 
   AudioWaveStatus audioWaveStatus = AudioWaveStatus.initializing;
-  File audioFile;
+  late File audioFile;
 
-  StreamController<int> barAnimationStream;
+  StreamController<int>? barAnimationStream;
 
-  AudioWavePlayerController({@required AudioWaveModel audioWaveModel}) {
+  AudioWavePlayerController({required AudioWaveModel audioWaveModel}) {
     audioWaves = audioWaveModel.waves;
     audioDuration = audioWaveModel.duration;
     audioFile = audioWaveModel.audio;
@@ -105,12 +103,12 @@ class AudioWavePlayerController {
 
   //SETUP BAR ANIMATION
   void _setUpBarAnimation() {
-    int durationInMiliiSecond = audioDuration.inMilliseconds;
-    int durationForMultiply = durationInMiliiSecond ~/ audioWaves.length;
+    int durationInMiliiSecond = audioDuration!.inMilliseconds;
+    int durationForMultiply = durationInMiliiSecond ~/ audioWaves!.length;
 
     Timer.periodic(Duration(milliseconds: durationForMultiply), (Timer t) {
       if (audioWaveStatus == AudioWaveStatus.play) {
-        barAnimationStream.add(++_indexForBarAnimation);
+        barAnimationStream!.add(++_indexForBarAnimation);
       } else {
         t.cancel();
       }

@@ -3,14 +3,13 @@ import 'dart:async';
 import 'package:audio_wave/audio_wave/audio_wave_recorder/audio_wave_generator.dart';
 import 'package:audio_wave/audio_wave/models/audio_wave_generate_model.dart';
 import 'package:file/local.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
 import 'dart:io' as io;
 
 import 'package:path_provider/path_provider.dart';
 
 typedef OnRecordComplete(
-    io.File audioFile, List<double> waves, Duration duration);
+    io.File audioFile, List<double> waves, Duration? duration);
 
 class AudioWaveRecordController {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -18,13 +17,13 @@ class AudioWaveRecordController {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   final OnRecordComplete onRecordComplete;
-  RecordingStatus currentStatus = RecordingStatus.Unset;
+  RecordingStatus? currentStatus = RecordingStatus.Unset;
 
-  String errorMsg;
+  String? errorMsg;
 
-  StreamController<AudioWaveGenerateModel> recordStream;
+  StreamController<AudioWaveGenerateModel>? recordStream;
 
-  AudioWaveRecordController({@required this.onRecordComplete}) {
+  AudioWaveRecordController({required this.onRecordComplete}) {
     _init();
   }
 
@@ -32,14 +31,14 @@ class AudioWaveRecordController {
     recordStream = StreamController<AudioWaveGenerateModel>();
     _audioWaveGenerator =
         AudioWaveGenerator(onGenerateWave: (List<double> waves) {
-      recordStream.add(
-          AudioWaveGenerateModel(waves: waves, duration: _current.duration));
+      recordStream!.add(
+          AudioWaveGenerateModel(waves: waves, duration: _current!.duration));
     });
 
     await _recorder.start();
 
     _current = await _recorder.current();
-    currentStatus = _current.status;
+    currentStatus = _current!.status;
 
     const tick = const Duration(milliseconds: 50);
     new Timer.periodic(tick, (Timer t) async {
@@ -48,8 +47,8 @@ class AudioWaveRecordController {
       }
 
       _current = await _recorder.current();
-      currentStatus = _current.status;
-      _addToWaves(_current.metering.averagePower);
+      currentStatus = _current!.status;
+      _addToWaves(_current!.metering!.averagePower);
     });
 
     _notifyChange();
@@ -57,26 +56,26 @@ class AudioWaveRecordController {
 
   void stopRecord() async {
     _current = await _recorder.stop();
-    currentStatus = _current.status;
+    currentStatus = _current!.status;
 
     await recordStream?.close();
     recordStream = null;
 
-    final List<double> waves = _audioWaveGenerator.getFinalWave();
+    final List<double>? waves = _audioWaveGenerator!.getFinalWave();
     _audioWaveGenerator = null;
 
     if (waves == null) {
       try {
-        await _localFileSystem.file(_current.path).delete();
+        await _localFileSystem.file(_current!.path).delete();
       } catch (_) {}
 
       _init();
       return;
     }
 
-    io.File file = _localFileSystem.file(_current.path);
+    io.File file = _localFileSystem.file(_current!.path);
 
-    onRecordComplete(file, waves, _current.duration);
+    onRecordComplete(file, waves, _current!.duration);
 
     _init();
   }
@@ -89,11 +88,11 @@ class AudioWaveRecordController {
   ///************************************************PRIVATE**************************************************************
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  FlutterAudioRecorder _recorder;
+  late FlutterAudioRecorder _recorder;
 
-  Recording _current;
+  Recording? _current;
 
-  AudioWaveGenerator _audioWaveGenerator;
+  AudioWaveGenerator? _audioWaveGenerator;
 
   final LocalFileSystem _localFileSystem = LocalFileSystem();
 
@@ -101,16 +100,19 @@ class AudioWaveRecordController {
 
   void _init() async {
     errorMsg = null;
-    if (await FlutterAudioRecorder.hasPermissions) {
+
+    bool? hasPermission = await FlutterAudioRecorder.hasPermissions;
+
+    if (hasPermission == true) {
       String customPath = '/temp_voices';
-      io.Directory appDocDirectory;
+      io.Directory? appDocDirectory;
       if (io.Platform.isIOS) {
         appDocDirectory = await getApplicationDocumentsDirectory();
       } else {
         appDocDirectory = await getExternalStorageDirectory();
       }
 
-      customPath = appDocDirectory.path +
+      customPath = appDocDirectory!.path +
           customPath +
           DateTime.now().millisecondsSinceEpoch.toString();
 
@@ -118,10 +120,10 @@ class AudioWaveRecordController {
           FlutterAudioRecorder(customPath, audioFormat: AudioFormat.WAV);
 
       await _recorder.initialized;
-      Recording current = await _recorder.current();
+      Recording? current = await _recorder.current();
 
       _current = current;
-      currentStatus = current.status;
+      currentStatus = current!.status;
     } else {
       errorMsg = "You must accept permissions";
     }
@@ -129,11 +131,11 @@ class AudioWaveRecordController {
     _notifyChange();
   }
 
-  void _addToWaves(double wave) {
+  void _addToWaves(double? wave) {
     if (_audioWaveGenerator != null) {
       if (recordStream != null) {
-        if (!recordStream.isClosed) {
-          _audioWaveGenerator.addToStream(wave);
+        if (!recordStream!.isClosed) {
+          _audioWaveGenerator!.addToStream(wave!);
         }
       }
     }

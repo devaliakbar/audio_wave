@@ -14,7 +14,7 @@ class Example extends StatefulWidget {
 }
 
 class _ExampleState extends State<Example> {
-  AudioWaveRecordController _audioWaveRecordController;
+  AudioWaveRecordController? _audioWaveRecordController;
 
   final List<AudioWaveModel> audios = [];
 
@@ -25,12 +25,12 @@ class _ExampleState extends State<Example> {
     super.initState();
 
     _audioWaveRecordController = AudioWaveRecordController(onRecordComplete:
-        (File audioFile, List<double> waves, Duration duration) {
-      audios.add(
-          AudioWaveModel(audio: audioFile, duration: duration, waves: waves));
+        (File audioFile, List<double> waves, Duration? duration) {
+      audios.add(AudioWaveModel(
+          audio: audioFile, duration: duration as Duration, waves: waves));
     });
 
-    _audioWaveRecordController.addCallback(() {
+    _audioWaveRecordController!.addCallback(() {
       setState(() {});
     });
   }
@@ -73,7 +73,7 @@ class _ExampleState extends State<Example> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(
-                    child: _audioWaveRecordController.currentStatus ==
+                    child: _audioWaveRecordController!.currentStatus ==
                             RecordingStatus.Recording
                         ? AudioWaveRecordWidget(
                             audioWaveRecordController:
@@ -82,28 +82,28 @@ class _ExampleState extends State<Example> {
                         : Container(),
                   ),
                   GestureDetector(
-                    onLongPress: _audioWaveRecordController.currentStatus ==
+                    onLongPress: _audioWaveRecordController!.currentStatus ==
                             RecordingStatus.Initialized
                         ? () {
-                            _audioWaveRecordController.startRecord();
+                            _audioWaveRecordController!.startRecord();
                           }
                         : null,
                     onLongPressEnd: (LongPressEndDetails details) {
-                      if (_audioWaveRecordController.currentStatus !=
+                      if (_audioWaveRecordController!.currentStatus !=
                           RecordingStatus.Recording) {
-                        while (_audioWaveRecordController.currentStatus !=
+                        while (_audioWaveRecordController!.currentStatus !=
                             RecordingStatus.Recording) {}
                       }
 
-                      _audioWaveRecordController.stopRecord();
+                      _audioWaveRecordController!.stopRecord();
                     },
                     child: ClipOval(
                       child: Container(
                         padding: EdgeInsets.all(10),
-                        color: _audioWaveRecordController.currentStatus ==
+                        color: _audioWaveRecordController!.currentStatus ==
                                 RecordingStatus.Recording
                             ? Colors.red
-                            : _audioWaveRecordController.currentStatus ==
+                            : _audioWaveRecordController!.currentStatus ==
                                     RecordingStatus.Initialized
                                 ? Colors.blue
                                 : Colors.yellow,

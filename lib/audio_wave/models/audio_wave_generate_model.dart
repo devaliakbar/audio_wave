@@ -1,8 +1,6 @@
-import 'package:flutter/material.dart';
-
 class AudioWaveGenerateModel {
   final List<double> waves;
-  final Duration duration;
+  final Duration? duration;
 
-  AudioWaveGenerateModel({@required this.waves, @required this.duration});
+  AudioWaveGenerateModel({required this.waves, required this.duration});
 }

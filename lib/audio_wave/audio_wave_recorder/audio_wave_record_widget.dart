@@ -5,10 +5,10 @@ import 'package:audio_wave/audio_wave/models/audio_wave_generate_model.dart';
 import 'package:flutter/material.dart';
 
 class AudioWaveRecordWidget extends StatelessWidget {
-  final AudioWaveRecordController audioWaveRecordController;
+  final AudioWaveRecordController? audioWaveRecordController;
 
   ///[height] is the height of the container
-  final double height;
+  final double? height;
 
   /// [activeColor] is the color of the active bar
   final Color activeColor;
@@ -16,14 +16,14 @@ class AudioWaveRecordWidget extends StatelessWidget {
   final ScrollController _scrollController = ScrollController();
 
   AudioWaveRecordWidget({
-    @required this.audioWaveRecordController,
+    required this.audioWaveRecordController,
     this.height,
     this.activeColor = const Color(0xFF81B3C1),
   });
 
   @override
   Widget build(BuildContext context) {
-    double _containerHeight = height;
+    double? _containerHeight = height;
     if (_containerHeight == null) {
       final double _blockSizeVertical =
           MediaQuery.of(context).size.height / 100;
@@ -37,11 +37,12 @@ class AudioWaveRecordWidget extends StatelessWidget {
     final double _spacing = 0.3 * _blockSizeHorizontal;
 
     return StreamBuilder(
-      stream: audioWaveRecordController.recordStream?.stream ?? null,
+      stream: audioWaveRecordController!.recordStream?.stream ?? null,
       builder: (context, snapshot) {
         if (snapshot.data == null) return Container();
 
-        AudioWaveGenerateModel audioWaveGenerate = snapshot.data;
+        AudioWaveGenerateModel audioWaveGenerate =
+            snapshot.data as AudioWaveGenerateModel;
 
         final List<double> buffer = audioWaveGenerate.waves;
 
@@ -71,7 +72,7 @@ class AudioWaveRecordWidget extends StatelessWidget {
                     children: [
                       Container(
                         margin: EdgeInsets.only(right: _spacing),
-                        height: bar * _containerHeight / 100,
+                        height: bar * _containerHeight! / 100,
                         width: _barWidth,
                         decoration: BoxDecoration(
                           color: activeColor,
@@ -83,7 +84,7 @@ class AudioWaveRecordWidget extends StatelessWidget {
                 },
               ),
             ),
-            Text("${audioWaveGenerate.duration.inSeconds}")
+            Text("${audioWaveGenerate.duration!.inSeconds}")
           ],
         );
       },

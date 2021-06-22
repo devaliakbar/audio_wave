@@ -1,12 +1,10 @@
-import 'package:flutter/material.dart';
-
 typedef OnGenerateWave(List<double> waves);
 
 class AudioWaveGenerator {
   static const int _BAR_LENGTH = 100;
 
   final OnGenerateWave onGenerateWave;
-  AudioWaveGenerator({@required this.onGenerateWave});
+  AudioWaveGenerator({required this.onGenerateWave});
 
   List<double> currentBuffer = [];
   List<double> visualBuffer = [];
@@ -27,7 +25,7 @@ class AudioWaveGenerator {
     }
   }
 
-  List<double> getFinalWave() {
+  List<double>? getFinalWave() {
     if (wavesInDimension.length > 0) {
       return wavesInDimension[wavesInDimension.length - 1];
     }
