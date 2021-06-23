@@ -17,7 +17,7 @@ class AudioWaveRecordController {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   final OnRecordComplete onRecordComplete;
-  AudioWaveRecorderStatus currentStatus = mapToStatus(RecordingStatus.Unset);
+  AudioWaveRecorderStatus currentStatus = AudioWaveRecorderStatus.Unset;
 
   String? errorMsg;
 
@@ -28,7 +28,7 @@ class AudioWaveRecordController {
   }
 
   void startRecord() async {
-    if (currentStatus != mapToStatus(RecordingStatus.Initialized)) {
+    if (currentStatus != AudioWaveRecorderStatus.Initialized) {
       return;
     }
 
@@ -46,7 +46,7 @@ class AudioWaveRecordController {
 
     const tick = const Duration(milliseconds: 50);
     new Timer.periodic(tick, (Timer t) async {
-      if (currentStatus != mapToStatus(RecordingStatus.Recording)) {
+      if (currentStatus != AudioWaveRecorderStatus.Recording) {
         t.cancel();
       } else {
         _current = await _recorder.current();
@@ -59,7 +59,7 @@ class AudioWaveRecordController {
   }
 
   void stopRecord() async {
-    if (currentStatus != mapToStatus(RecordingStatus.Recording)) {
+    if (currentStatus != AudioWaveRecorderStatus.Recording) {
       return;
     }
 
