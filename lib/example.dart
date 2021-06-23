@@ -24,10 +24,9 @@ class _ExampleState extends State<Example> {
   void initState() {
     super.initState();
 
-    _audioWaveRecordController = AudioWaveRecordController(onRecordComplete:
-        (File audioFile, List<double> waves, Duration? duration) {
-      audios.add(AudioWaveModel(
-          audio: audioFile, duration: duration as Duration, waves: waves));
+    _audioWaveRecordController = AudioWaveRecordController(
+        onRecordComplete: (File audioFile, List<double> waves) {
+      audios.add(AudioWaveModel(audio: audioFile, waves: waves));
     });
 
     _audioWaveRecordController!.addCallback(() {

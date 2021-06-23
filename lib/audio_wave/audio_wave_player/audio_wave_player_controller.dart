@@ -13,7 +13,7 @@ class AudioWavePlayerController {
 
   late final List<double>? audioWaves;
 
-  late final Duration? audioDuration;
+  late final Duration audioDuration;
 
   late final File audioFile;
 
@@ -68,7 +68,9 @@ class AudioWavePlayerController {
 
   //INITIALIZING
   Future<void> _init() async {
-    audioDuration = await _audioPlayer.setFilePath(audioFile.path);
+    Duration? duration = await _audioPlayer.setFilePath(audioFile.path);
+
+    audioDuration = duration!;
 
     barAnimationStream = StreamController<int>();
 
@@ -76,8 +78,7 @@ class AudioWavePlayerController {
       int currentDurationInMilliSeconds = event.inMilliseconds;
 
       int percentage =
-          ((currentDurationInMilliSeconds / audioDuration!.inMilliseconds) *
-                  100)
+          ((currentDurationInMilliSeconds / audioDuration.inMilliseconds) * 100)
               .truncate();
 
       print(percentage);

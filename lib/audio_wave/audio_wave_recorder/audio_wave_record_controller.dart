@@ -8,8 +8,7 @@ import 'dart:io' as io;
 
 import 'package:path_provider/path_provider.dart';
 
-typedef OnRecordComplete(
-    io.File audioFile, List<double> waves, Duration? duration);
+typedef OnRecordComplete(io.File audioFile, List<double> waves);
 
 class AudioWaveRecordController {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -75,7 +74,7 @@ class AudioWaveRecordController {
 
     io.File file = _localFileSystem.file(_current!.path);
 
-    onRecordComplete(file, waves, _current!.duration);
+    onRecordComplete(file, waves);
 
     _init();
   }

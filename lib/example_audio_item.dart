@@ -13,7 +13,7 @@ class ExampleAudioItem extends StatefulWidget {
 }
 
 class _ExampleAudioItemState extends State<ExampleAudioItem> {
-  AudioWavePlayerController? _audioWavePlayerController;
+  late final AudioWavePlayerController _audioWavePlayerController;
 
   @override
   void initState() {
@@ -22,7 +22,7 @@ class _ExampleAudioItemState extends State<ExampleAudioItem> {
     _audioWavePlayerController =
         AudioWavePlayerController(audioWaveModel: widget.audioWaveModel);
 
-    _audioWavePlayerController!.addListener(() {
+    _audioWavePlayerController.addListener(() {
       setState(() {});
     });
   }
@@ -30,7 +30,7 @@ class _ExampleAudioItemState extends State<ExampleAudioItem> {
   @override
   void dispose() {
     super.dispose();
-    _audioWavePlayerController!.dispose();
+    _audioWavePlayerController.dispose();
   }
 
   @override
@@ -41,29 +41,29 @@ class _ExampleAudioItemState extends State<ExampleAudioItem> {
         children: [
           Row(
             children: [
-              _audioWavePlayerController!.audioWaveStatus ==
+              _audioWavePlayerController.audioWaveStatus ==
                       AudioWaveStatus.initializing
                   ? Center(
                       child: CircularProgressIndicator(),
                     )
                   : IconButton(
                       icon: Icon(
-                        (_audioWavePlayerController!.audioWaveStatus ==
+                        (_audioWavePlayerController.audioWaveStatus ==
                                     AudioWaveStatus.initialized ||
-                                _audioWavePlayerController!.audioWaveStatus ==
+                                _audioWavePlayerController.audioWaveStatus ==
                                     AudioWaveStatus.pause)
                             ? Icons.play_arrow
                             : Icons.pause,
                         size: 25,
                       ),
                       onPressed: () {
-                        if (_audioWavePlayerController!.audioWaveStatus ==
+                        if (_audioWavePlayerController.audioWaveStatus ==
                                 AudioWaveStatus.initialized ||
-                            _audioWavePlayerController!.audioWaveStatus ==
+                            _audioWavePlayerController.audioWaveStatus ==
                                 AudioWaveStatus.pause) {
-                          _audioWavePlayerController!.play();
+                          _audioWavePlayerController.play();
                         } else {
-                          _audioWavePlayerController!.pause();
+                          _audioWavePlayerController.pause();
                         }
                       }),
               Expanded(
@@ -75,7 +75,10 @@ class _ExampleAudioItemState extends State<ExampleAudioItem> {
           SizedBox(
             height: 10,
           ),
-          Text(widget.audioWaveModel.duration.toString())
+          _audioWavePlayerController.audioWaveStatus ==
+                  AudioWaveStatus.initialized
+              ? Text(_audioWavePlayerController.audioDuration.toString())
+              : Container()
         ],
       ),
     );
