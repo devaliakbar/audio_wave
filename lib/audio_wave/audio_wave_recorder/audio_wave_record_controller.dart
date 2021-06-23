@@ -66,7 +66,7 @@ class AudioWaveRecordController {
     _current = await _recorder.stop();
     currentStatus = mapToStatus(_current!.status);
 
-    await recordStream?.close();
+    recordStream?.close();
     recordStream = null;
 
     final List<double>? waves = _audioWaveGenerator!.getFinalWave();
