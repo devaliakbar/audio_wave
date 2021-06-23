@@ -53,39 +53,33 @@ class AudioWaveRecordWidget extends StatelessWidget {
               curve: Curves.linear);
         });
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              height: _containerHeight,
-              child: ListView.builder(
-                controller: _scrollController,
-                padding: EdgeInsets.all(0),
-                shrinkWrap: true,
-                itemCount: buffer.length,
-                scrollDirection: Axis.horizontal,
-                itemBuilder: (BuildContext _, int index) {
-                  final double bar = buffer[index] * 100;
+        return Container(
+          height: _containerHeight,
+          child: ListView.builder(
+            controller: _scrollController,
+            padding: EdgeInsets.all(0),
+            shrinkWrap: true,
+            itemCount: buffer.length,
+            scrollDirection: Axis.horizontal,
+            itemBuilder: (BuildContext _, int index) {
+              final double bar = buffer[index] * 100;
 
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        margin: EdgeInsets.only(right: _spacing),
-                        height: bar * _containerHeight! / 100,
-                        width: _barWidth,
-                        decoration: BoxDecoration(
-                          color: activeColor,
-                          borderRadius: BorderRadius.circular(_barWidth),
-                        ),
-                      )
-                    ],
-                  );
-                },
-              ),
-            ),
-            Text("${audioWaveGenerate.duration!.inSeconds}")
-          ],
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    margin: EdgeInsets.only(right: _spacing),
+                    height: bar * _containerHeight! / 100,
+                    width: _barWidth,
+                    decoration: BoxDecoration(
+                      color: activeColor,
+                      borderRadius: BorderRadius.circular(_barWidth),
+                    ),
+                  )
+                ],
+              );
+            },
+          ),
         );
       },
     );
