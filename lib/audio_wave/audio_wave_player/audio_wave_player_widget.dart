@@ -6,7 +6,7 @@ class AudioWavePlayerWidget extends StatelessWidget {
     required this.audioWavePlayerController,
     this.height,
     this.activeBarColor = const Color(0xFF81B3C1),
-    this.inActiveBarColor = Colors.black54,
+    this.inActiveBarColor = const Color(0xFF6E6E7A),
   });
 
   final AudioWavePlayerController? audioWavePlayerController;

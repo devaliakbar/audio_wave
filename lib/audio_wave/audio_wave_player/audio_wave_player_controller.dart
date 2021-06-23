@@ -78,7 +78,8 @@ class AudioWavePlayerController {
       int currentDurationInMilliSeconds = event.inMilliseconds;
 
       int percentage =
-          ((currentDurationInMilliSeconds / audioDuration.inMilliseconds) * 100)
+          ((currentDurationInMilliSeconds / audioDuration.inMilliseconds) *
+                  audioWaves!.length)
               .truncate();
 
       print(percentage);

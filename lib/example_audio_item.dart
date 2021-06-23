@@ -75,8 +75,8 @@ class _ExampleAudioItemState extends State<ExampleAudioItem> {
           SizedBox(
             height: 10,
           ),
-          _audioWavePlayerController.audioWaveStatus ==
-                  AudioWaveStatus.initialized
+          _audioWavePlayerController.audioWaveStatus !=
+                  AudioWaveStatus.initializing
               ? Text(_audioWavePlayerController.audioDuration.toString())
               : Container()
         ],
