@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:audio_wave/audio_wave/audio_wave_recorder/audio_wave_generator.dart';
 import 'package:audio_wave/audio_wave/models/audio_wave_generate_model.dart';
+import 'package:audio_wave/audio_wave/models/audio_wave_recorder_status.dart';
 import 'package:file/local.dart';
 import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
 import 'dart:io' as io;
@@ -16,7 +17,7 @@ class AudioWaveRecordController {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   final OnRecordComplete onRecordComplete;
-  RecordingStatus? currentStatus = RecordingStatus.Unset;
+  AudioWaveRecorderStatus currentStatus = mapToStatus(RecordingStatus.Unset);
 
   String? errorMsg;
 
@@ -27,7 +28,7 @@ class AudioWaveRecordController {
   }
 
   void startRecord() async {
-    if (currentStatus != RecordingStatus.Initialized) {
+    if (currentStatus != mapToStatus(RecordingStatus.Initialized)) {
       return;
     }
 
@@ -41,15 +42,15 @@ class AudioWaveRecordController {
     await _recorder.start();
 
     _current = await _recorder.current();
-    currentStatus = _current!.status;
+    currentStatus = mapToStatus(_current!.status);
 
     const tick = const Duration(milliseconds: 50);
     new Timer.periodic(tick, (Timer t) async {
-      if (currentStatus != RecordingStatus.Recording) {
+      if (currentStatus != mapToStatus(RecordingStatus.Recording)) {
         t.cancel();
       } else {
         _current = await _recorder.current();
-        currentStatus = _current!.status;
+        currentStatus = mapToStatus(_current!.status);
         _addToWaves(_current!.metering!.averagePower);
       }
     });
@@ -58,12 +59,12 @@ class AudioWaveRecordController {
   }
 
   void stopRecord() async {
-    if (currentStatus != RecordingStatus.Recording) {
+    if (currentStatus != mapToStatus(RecordingStatus.Recording)) {
       return;
     }
 
     _current = await _recorder.stop();
-    currentStatus = _current!.status;
+    currentStatus = mapToStatus(_current!.status);
 
     await recordStream?.close();
     recordStream = null;
@@ -130,7 +131,7 @@ class AudioWaveRecordController {
       Recording? current = await _recorder.current();
 
       _current = current;
-      currentStatus = current!.status;
+      currentStatus = mapToStatus(current!.status);
     } else {
       errorMsg = "You must accept permissions";
     }

@@ -4,9 +4,9 @@ import 'dart:io';
 import 'package:audio_wave/audio_wave/audio_wave_recorder/audio_wave_record_controller.dart';
 import 'package:audio_wave/audio_wave/audio_wave_recorder/audio_wave_record_widget.dart';
 import 'package:audio_wave/audio_wave/models/audio_wave_model.dart';
+import 'package:audio_wave/audio_wave/models/audio_wave_recorder_status.dart';
 import 'package:audio_wave/example_audio_item.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
 
 class Example extends StatefulWidget {
   @override
@@ -73,7 +73,7 @@ class _ExampleState extends State<Example> {
                 children: [
                   Expanded(
                     child: _audioWaveRecordController!.currentStatus ==
-                            RecordingStatus.Recording
+                            AudioWaveRecorderStatus.Recording
                         ? AudioWaveRecordWidget(
                             audioWaveRecordController:
                                 _audioWaveRecordController,
@@ -82,16 +82,16 @@ class _ExampleState extends State<Example> {
                   ),
                   GestureDetector(
                     onLongPress: _audioWaveRecordController!.currentStatus ==
-                            RecordingStatus.Initialized
+                            AudioWaveRecorderStatus.Initialized
                         ? () {
                             _audioWaveRecordController!.startRecord();
                           }
                         : null,
                     onLongPressEnd: (LongPressEndDetails details) {
                       if (_audioWaveRecordController!.currentStatus !=
-                          RecordingStatus.Recording) {
+                          AudioWaveRecorderStatus.Recording) {
                         while (_audioWaveRecordController!.currentStatus !=
-                            RecordingStatus.Recording) {}
+                            AudioWaveRecorderStatus.Recording) {}
                       }
 
                       _audioWaveRecordController!.stopRecord();
@@ -100,10 +100,10 @@ class _ExampleState extends State<Example> {
                       child: Container(
                         padding: EdgeInsets.all(10),
                         color: _audioWaveRecordController!.currentStatus ==
-                                RecordingStatus.Recording
+                                AudioWaveRecorderStatus.Recording
                             ? Colors.red
                             : _audioWaveRecordController!.currentStatus ==
-                                    RecordingStatus.Initialized
+                                    AudioWaveRecorderStatus.Initialized
                                 ? Colors.blue
                                 : Colors.yellow,
                         child: Icon(
