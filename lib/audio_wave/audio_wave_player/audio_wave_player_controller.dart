@@ -82,8 +82,6 @@ class AudioWavePlayerController {
                   audioWaves!.length)
               .truncate();
 
-      print(percentage);
-
       barAnimationStream!.add(percentage);
     });
 
