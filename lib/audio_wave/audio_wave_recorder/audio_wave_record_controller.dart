@@ -27,6 +27,10 @@ class AudioWaveRecordController {
   }
 
   void startRecord() async {
+    if (currentStatus != RecordingStatus.Initialized) {
+      return;
+    }
+
     recordStream = StreamController<AudioWaveGenerateModel>();
     _audioWaveGenerator =
         AudioWaveGenerator(onGenerateWave: (List<double> waves) {
@@ -43,17 +47,21 @@ class AudioWaveRecordController {
     new Timer.periodic(tick, (Timer t) async {
       if (currentStatus != RecordingStatus.Recording) {
         t.cancel();
+      } else {
+        _current = await _recorder.current();
+        currentStatus = _current!.status;
+        _addToWaves(_current!.metering!.averagePower);
       }
-
-      _current = await _recorder.current();
-      currentStatus = _current!.status;
-      _addToWaves(_current!.metering!.averagePower);
     });
 
     _notifyChange();
   }
 
   void stopRecord() async {
+    if (currentStatus != RecordingStatus.Recording) {
+      return;
+    }
+
     _current = await _recorder.stop();
     currentStatus = _current!.status;
 
