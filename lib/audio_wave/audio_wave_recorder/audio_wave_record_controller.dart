@@ -32,7 +32,7 @@ class AudioWaveRecordController {
       return;
     }
 
-    recordStream = StreamController<AudioWaveGenerateModel>();
+    recordStream = StreamController<AudioWaveGenerateModel>.broadcast();
     _audioWaveGenerator =
         AudioWaveGenerator(onGenerateWave: (List<double> waves) {
       recordStream!.add(
