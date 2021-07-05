@@ -47,10 +47,12 @@ class AudioWaveRecordWidget extends StatelessWidget {
         final List<double> buffer = audioWaveGenerate.waves;
 
         Timer(Duration(milliseconds: 25), () {
-          _scrollController.animateTo(
-              _scrollController.position.maxScrollExtent,
-              duration: Duration(milliseconds: 25),
-              curve: Curves.linear);
+          if (_scrollController.hasClients) {
+            _scrollController.animateTo(
+                _scrollController.position.maxScrollExtent,
+                duration: Duration(milliseconds: 25),
+                curve: Curves.linear);
+          }
         });
 
         return Container(
