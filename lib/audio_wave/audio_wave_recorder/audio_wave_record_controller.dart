@@ -58,6 +58,25 @@ class AudioWaveRecordController {
     _notifyChange();
   }
 
+  void cancelRecord() async {
+    if (currentStatus != AudioWaveRecorderStatus.Recording) {
+      return;
+    }
+
+    currentStatus = AudioWaveRecorderStatus.Unset;
+
+    _current = await _recorder.stop();
+
+    recordStream?.close();
+    recordStream = null;
+
+    try {
+      await _localFileSystem.file(_current!.path).delete();
+    } catch (_) {}
+
+    _init();
+  }
+
   void stopRecord() async {
     if (currentStatus != AudioWaveRecorderStatus.Recording) {
       return;
