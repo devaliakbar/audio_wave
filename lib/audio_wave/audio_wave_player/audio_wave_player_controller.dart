@@ -15,7 +15,7 @@ class AudioWavePlayerController {
 
   late final Duration audioDuration;
 
-  late final File audioFile;
+  late final String audioUrl;
 
   AudioWaveStatus audioWaveStatus = AudioWaveStatus.initializing;
 
@@ -23,7 +23,7 @@ class AudioWavePlayerController {
 
   AudioWavePlayerController({required AudioWaveModel audioWaveModel}) {
     audioWaves = audioWaveModel.waves;
-    audioFile = audioWaveModel.audio;
+    audioUrl = audioWaveModel.audio;
     _init();
   }
 
@@ -68,7 +68,7 @@ class AudioWavePlayerController {
 
   //INITIALIZING
   Future<void> _init() async {
-    Duration? duration = await _audioPlayer.setFilePath(audioFile.path);
+    Duration? duration = await _audioPlayer.setUrl(audioUrl);
 
     audioDuration = duration!;
 
