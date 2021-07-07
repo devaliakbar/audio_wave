@@ -26,7 +26,7 @@ class _ExampleState extends State<Example> {
 
     _audioWaveRecordController = AudioWaveRecordController(
         onRecordComplete: (File audioFile, List<double> waves) {
-      audios.add(AudioWaveModel(audio: SAMPLE_AUDIO, waves: DEMO_WAVES));
+      audios.add(AudioWaveModel(audio: SAMPLE_AUDIO, waves: SAMPLE_WAVES));
     });
 
     _audioWaveRecordController!.addCallback(() {
@@ -127,7 +127,7 @@ class _ExampleState extends State<Example> {
 const String SAMPLE_AUDIO =
     "https://s169.123apps.com/aconv/d/s169UPsyXaEx_wav_dNWGWlwb.wav";
 
-const List<double> DEMO_WAVES = [
+const List<double> SAMPLE_WAVES = [
   0.1,
   0.1,
   0.1,
