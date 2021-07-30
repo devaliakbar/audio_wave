@@ -39,7 +39,10 @@ class AudioWaveRecordWidget extends StatelessWidget {
     return StreamBuilder(
       stream: audioWaveRecordController!.recordStream?.stream ?? null,
       builder: (context, snapshot) {
-        if (snapshot.data == null) return Container();
+        if (snapshot.data == null)
+          return Container(
+            height: _containerHeight,
+          );
 
         AudioWaveGenerateModel audioWaveGenerate =
             snapshot.data as AudioWaveGenerateModel;
