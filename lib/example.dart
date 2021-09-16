@@ -125,7 +125,7 @@ class _ExampleState extends State<Example> {
 }
 
 const String SAMPLE_AUDIO =
-    "https://s169.123apps.com/aconv/d/s169UPsyXaEx_wav_dNWGWlwb.wav";
+    "https://development-kyubook-assets.s3.amazonaws.com/d/CREATIVE/ModuleItemId//data/user/0/com-1263.mp3";
 
 const List<double> SAMPLE_WAVES = [
   0.1,

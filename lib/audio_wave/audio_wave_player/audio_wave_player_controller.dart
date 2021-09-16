@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:audio_wave/audio_wave/models/audio_wave_model.dart';
 import 'package:just_audio/just_audio.dart';
@@ -53,10 +52,12 @@ class AudioWavePlayerController {
   }
 
   void dispose() async {
-    _audioPlayer.dispose();
-    audioWaveStatus = AudioWaveStatus.initializing;
-    await barAnimationStream?.close();
-    barAnimationStream = null;
+    try {
+      audioWaveStatus = AudioWaveStatus.initializing;
+      barAnimationStream = null;
+      barAnimationStream?.close();
+      _audioPlayer.dispose();
+    } catch (_) {}
   }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

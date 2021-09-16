@@ -1,5 +1,3 @@
-import 'dart:io';
-
 class AudioWaveModel {
   final String audio;
   final List<double> waves;
