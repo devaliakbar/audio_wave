@@ -90,8 +90,8 @@ class AudioWavePlayerController {
       if (event.processingState == ProcessingState.completed) {
         audioWaveStatus = AudioWaveStatus.initializing;
 
+        await _audioPlayer.pause();
         await _audioPlayer.seek(Duration.zero);
-        await _audioPlayer.stop();
 
         audioWaveStatus = AudioWaveStatus.initialized;
 
