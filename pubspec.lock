@@ -94,8 +94,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: HEAD
-      resolved-ref: f345a86f3b98da8afa3596e1daaf1ca9406074e4
+      ref: f983217b23a45e95749bef03873b96e42c1539dc
+      resolved-ref: f983217b23a45e95749bef03873b96e42c1539dc
       url: "https://github.com/devaliakbar/flutter_audio_recorder.git"
     source: git
     version: "0.5.5"
